@@ -12,15 +12,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  final List<Area> bigAreas = [Area(name: "topLeft", x0: 0.0,x1: 0.5, y0: 0.0, y1: 0.33),
-                               Area(name: "topRight", x0: 0.5,x1: 1.0, y0: 0.0, y1: 0.33),
-                               Area(name: "center", x0: 0.0,x1: 1.0, y0: 0.33, y1: 0.66),
-                               Area(name: "bottom", x0: 0.0,x1: 1.0, y0: 0.66, y1: 1.0),];
+  final List<Area> bigAreas = [Area(name: "topLeft", x0: 0 ,x1: 1, y0: 0, y1: 1),
+                               Area(name: "topRight", x0: 1,x1: 2, y0: 0, y1: 1),
+                               Area(name: "center", x0: 0  ,x1: 2, y0: 1, y1: 2),
+                               Area(name: "bottom", x0: 0  ,x1: 2, y0: 2, y1: 3),];
 
-  final List<Area> smallAreas = [Area(name: "bottom", x0: 0.0,x1: 0.5, y0: 0.0, y1: 0.33),
-                                 Area(name: "center", x0: 0.5,x1: 1.0, y0: 0.0, y1: 0.33),
-                                 Area(name: "topRight", x0: 0.0,x1: 1.0, y0: 0.33, y1: 0.66),
-                                 Area(name: "topLeft", x0: 0.0,x1: 1.0, y0: 0.66, y1: 1.0),];
+  final List<Area> smallAreas = [Area(name: "bottom", x0: 0,x1: 1, y0: 0, y1: 1),
+                                 Area(name: "center", x0: 0,x1: 2, y0: 0, y1: 1),
+                                 Area(name: "topRight", x0: 0,x1: 2, y0: 1, y1: 2),
+                                 Area(name: "topLeft", x0: 0,x1: 2, y0: 2, y1: 3),];
 
  bool isBigLayout = true;
 
@@ -43,10 +43,11 @@ class _MyAppState extends State<MyApp> {
        body: Container(
          child: SafeArea(
 
-           child: LayoutGrid(
+           child: LayoutGrid.pixel(
 
              adapt: true,
-             constraints: BoxConstraints(maxHeight: 500,maxWidth: 500),
+             gridColumns: [0.0,200,1000],
+             gridRows: [0.0,333,666,1000],
 
              areas: (isBigLayout) ? bigAreas : smallAreas,
              
