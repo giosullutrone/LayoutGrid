@@ -1,5 +1,5 @@
 
-import 'package:flutter_web/material.dart';
+/*import 'package:flutter_web/material.dart';
 
 class Area {
 
@@ -32,7 +32,7 @@ class LayoutGridCouple {
 
 class LayoutGrid {
 
-  static StatelessWidget fractional({List<Area> areas, List<double> gridColumns, List<double> gridRows, List<LayoutGridCouple> children, BoxFit boxFit, BoxConstraints constraints, bool adapt = true}) {
+  static StatelessWidget fractional({List<Area> areas, List<int> gridColumns, List<int> gridRows, List<LayoutGridCouple> children, BoxFit boxFit, BoxConstraints constraints, bool adapt = true}) {
 
     return LayoutGridFractional(
       areas: areas,
@@ -204,7 +204,7 @@ class LayoutGridChild extends StatelessWidget {
  List<double> adjustInputs(List<double> list, bool fractional) {
 
    //We make sure that our fractions contain 0.0 and 1.0
-   if (!fractional) list = checkForBeginandEnd(list);
+   if (fractional) list = checkForBeginandEnd(list);
 
    //We sort them in ascending order
    list.sort((a,b) => a.compareTo(b));
@@ -223,3 +223,4 @@ class LayoutGridChild extends StatelessWidget {
    }
    return list;
  }
+*/
