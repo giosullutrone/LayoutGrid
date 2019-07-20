@@ -89,7 +89,7 @@ class MainText extends StatelessWidget {
     return Column(
       children:<Widget> [
         Container(
-          child: Text("CSS Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),          
+          child: Text("CSS Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),
         ),
       ]
     );
