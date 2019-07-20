@@ -85,7 +85,7 @@ class _LayoutGridState extends State<LayoutGrid> {
                   children: List<Widget>.generate(_couples.length, (int index) {
                     if (!_couples[index].isNested) {
                       return LayoutGridChild(
-                        key: Key("$index"),
+                        key: UniqueKey(),
                         top: _rows[_couples[index].row0],
                         left: _col[_couples[index].col0],
                         height: _rows[_couples[index].row1] -
@@ -98,9 +98,7 @@ class _LayoutGridState extends State<LayoutGrid> {
                       );
                     } else {
                       return NestedLayoutGridChild(
-                        key: Key("$index" +
-                            _col.last.toString() +
-                            _rows.last.toString()),
+                        key: UniqueKey(),
                         top: _rows[_couples[index].row0],
                         left: _col[_couples[index].col0],
                         height: _rows[_couples[index].row1] -
