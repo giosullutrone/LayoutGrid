@@ -46,6 +46,11 @@ LayoutGridCouple getPositionededGridCouple(List<List<String>> areas, LayoutGridC
     }
   }
 
+  ///check that we did find the corresponding area
+  if (_child.col0 == -1) {
+    throw("Could not find the area specified by the LayoutGridCouple, did you write it correctly?");
+  }
+
   return _child;  
 }
 

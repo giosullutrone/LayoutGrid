@@ -54,6 +54,8 @@ List<double> calculateGridLines(List<String> list, double space) {
 
       _currentPosition += _value;
       _freespace -= _value;
+    }else {
+      throw("Wrong unit of measure passed inside the colmuns or rows, did you write it correctly?");
     }
   }
 
