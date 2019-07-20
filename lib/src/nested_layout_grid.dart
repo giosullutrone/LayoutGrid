@@ -1,9 +1,9 @@
 import 'package:flutter_web/material.dart';
-import 'package:layout_grid_for_web/layouGrid.dart';
 
-import 'Util/AreaCreationUtil.dart';
-import 'Util/LineCreationUtil.dart';
-import 'Util/layoutGridChild.dart';
+import 'Util/area_creation.dart';
+import 'Util/layout_grid_child.dart';
+import 'Util/line_creation.dart';
+import 'layout_grid_couple.dart';
 
 class NestedLayoutGrid extends StatefulWidget {
   final List<String> columns;

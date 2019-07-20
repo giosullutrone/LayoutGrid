@@ -1,6 +1,5 @@
 import 'package:flutter_web/material.dart';
-import 'package:layout_grid_for_web/nestedLayoutGrid.dart';
-import 'layouGrid.dart';
+import 'layout_grid.dart';
 
 void main() => runApp(MyApp());
 

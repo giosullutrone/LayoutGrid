@@ -1,28 +1,12 @@
 import 'package:flutter_web/material.dart';
 
-import 'Util/AreaCreationUtil.dart';
-import 'Util/layoutGridChild.dart';
-import 'Util/LineCreationUtil.dart';
+import 'Util/area_creation.dart';
+import 'Util/custom_scroll_behavior.dart';
+import 'Util/layout_grid_child.dart';
+import 'Util/line_creation.dart';
+import 'Util/nested_layout_grid_child.dart';
+import 'layout_grid_couple.dart';
 
-class LayoutGridCouple {
-  Widget widget;
-  int col0, col1, row0, row1;
-  String name;
-  BoxFit boxFit;
-  Alignment alignment;
-  bool isNested;
-
-  LayoutGridCouple(
-      {@required this.widget,
-      this.name,
-      this.col0 = -1,
-      this.col1 = -1,
-      this.row0 = -1,
-      this.row1 = -1,
-      this.boxFit = BoxFit.fill,
-      this.alignment = const Alignment(0.0, 0.0),
-      this.isNested = false});
-}
 
 class LayoutGrid extends StatefulWidget {
   final List<String> columns;
@@ -44,7 +28,8 @@ class LayoutGrid extends StatefulWidget {
     this.width,
     this.height,
     this.scrollDirection = Axis.vertical,
-  });
+    Key key,
+  }):super(key: key);
 
   _LayoutGridState createState() => _LayoutGridState();
 }
