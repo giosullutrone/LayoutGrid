@@ -34,9 +34,9 @@ class _MyAppState extends State<MyApp> {
                   ],
 
             couples: [LayoutGridCouple(widget: MainImage(), col0: 0, col1: 6, row0: 0, row1: 1, boxFit: BoxFit.cover),
-                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true),
+                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true, sizeModelKey: "topSection"),
 
-                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", isNested: true),
+                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", isNested: true, sizeModelKey: "aboutMe"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "label"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info0"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info1"),
@@ -47,21 +47,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-}
-
-NestedLayoutGrid TopSection(){
-
-  return NestedLayoutGrid(
-    columns: ["1fr","1fr","1fr","1fr","1fr"],
-    rows: ["1fr", "1%", "2fr", "1%", "1fr"],
-
-    couples: [
-              LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 1, row1: 2, boxFit: BoxFit.fitWidth),
-              LayoutGridCouple(widget: MainText(), col0: 1, col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown),
-              LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 3, row1: 4, boxFit: BoxFit.fitWidth),
-              LayoutGridCouple(widget: ScrollText(), col0: 2, col1: 3, row0: 4, row1: 5, boxFit: BoxFit.scaleDown),],
-    
-  );
 }
 
 class MainImage extends StatelessWidget {
@@ -119,16 +104,54 @@ class ScrollText extends StatelessWidget {
   }
 }
 
+class TopSection extends StatelessWidget {
+  const TopSection({Key key}) : super(key: key);
 
-NestedLayoutGrid AboutMeSection() {
-  return NestedLayoutGrid(
-    columns: ["10px","2fr", "300px", "2fr", "10px"],
-    rows: ["300px", "10px", "auto", "10px"],
+  @override
+  Widget build(BuildContext context) {
 
-    couples: [LayoutGridCouple(widget: AboutMeImage(), col0: 2,col1: 3, row0: 0, row1: 1),
-              LayoutGridCouple(widget: AboutMeText(), col0: 1,col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown, alignment: Alignment(-1.0, -1.0)),
-              LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 4, boxFit: BoxFit.none,)],
-  );
+    final String id = "topSection";
+    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+
+    return NestedLayoutGrid(
+
+      width:sizeModel.sizeMap[id].width,
+      height:sizeModel.sizeMap[id].height,
+
+      columns: ["1fr","1fr","1fr","1fr","1fr"],
+      rows: ["1fr", "1%", "2fr", "1%", "1fr"],
+
+      couples: [
+                LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 1, row1: 2, boxFit: BoxFit.fitWidth),
+                LayoutGridCouple(widget: MainText(), col0: 1, col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown),
+                LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 3, row1: 4, boxFit: BoxFit.fitWidth),
+                LayoutGridCouple(widget: ScrollText(), col0: 2, col1: 3, row0: 4, row1: 5, boxFit: BoxFit.scaleDown),],
+      
+    );
+  }
+}
+
+class AboutMeSection extends StatelessWidget {
+  const AboutMeSection({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    final String id = "aboutMe";
+    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+
+    return NestedLayoutGrid(
+      columns: ["10px","2fr", "300px", "2fr", "10px"],
+      rows: ["10px","300px", "10px", "auto", "10px"],
+
+      width: sizeModel.sizeMap[id].width,
+      height: sizeModel.sizeMap[id].height,
+
+      couples: [LayoutGridCouple(widget: AboutMeImage(), col0: 2,col1: 3, row0: 1, row1: 2),
+                LayoutGridCouple(widget: AboutMeText(), col0: 1,col1: 4, row0: 3, row1: 4, boxFit: BoxFit.scaleDown, alignment: Alignment(-1.0, -1.0)),
+                LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 5, boxFit: BoxFit.none,sizeModelKey: "cont")],
+    );
+  }
 }
 
 class AboutMeText extends StatelessWidget {
@@ -173,19 +196,23 @@ class AboutMeImage extends StatelessWidget {
 }
 
 class BorderContainer extends StatelessWidget {
-  const BorderContainer({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Container(
-        decoration: BoxDecoration(
 
-          border: Border.all(
-            color: Color.fromRGBO(38, 38, 38, 0.75),
-            width: 3.0,
-          )
-        ),
+    final String id = "cont";
+    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+
+    return Container(
+
+      width: sizeModel.sizeMap[id].width,
+      height: sizeModel.sizeMap[id].height,
+
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Color.fromRGBO(38, 38, 38, 0.75),
+          width: 3.0,
+        )
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter_web/material.dart';
+import 'package:layout_grid_for_web/src/Util/InheritedSizeMap.dart';
 
 import 'Util/area_creation.dart';
 import 'Util/custom_scroll_behavior.dart';
@@ -76,8 +77,7 @@ class LayoutGrid extends StatefulWidget {
   ///
   ///"auto" == remaining free space (Carefull not to use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
   ///
-  final List<String> columns;
-  final List<String> rows;
+  final List<String> columns, rows;
 
   ///[LayoutGridCouple] will let you link a widget to an area by name or by col0,col1,row0,row1
   ///
@@ -136,43 +136,48 @@ class _LayoutGridState extends State<LayoutGrid> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+    return SizeModel(
+      
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
 
-        ///We make sure that the constraints have changed before re-calculating everything wasting resources
-        if (_lastConstraints != constraints) {
-          ///We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
-          updateGrid(constraints, widget.width, widget.height);
-          _lastConstraints = constraints;
-        }
+          ///We make sure that the constraints have changed before re-calculating everything wasting resources
+          if (_lastConstraints != constraints) {
+            ///We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
+            updateGrid(constraints, widget.width, widget.height);
+            _lastConstraints = constraints;
+          }
 
-        return ScrollConfiguration(
-          ///We use [ScrollConfiguration] to remove the list glow that is used manly on mobile devices
-          behavior: CustomScrollBehavior(),
+          return ScrollConfiguration(
+            ///We use [ScrollConfiguration] to remove the list glow that is used manly on mobile devices
+            behavior: CustomScrollBehavior(),
 
-          child: ListView(scrollDirection: widget.scrollDirection, children: <Widget>[
+            child: ListView(scrollDirection: widget.scrollDirection, children: <Widget>[
 
-            Container(
+              Container(
 
-              ///We have to create a container to wrap our Stack, giving it specific a size
-              ///The size that we will giv will be that of our last previously calculated cols and rows
-              height: _rows.last,
-              width: _col.last,
+                ///We have to create a container to wrap our Stack, giving it specific a size
+                ///The size that we will giv will be that of our last previously calculated cols and rows
+                height: _rows.last,
+                width: _col.last,
 
-              child: Stack(
-                  
-                  fit: StackFit.expand,
+                child: Stack(
+                    
+                    fit: StackFit.expand,
 
-                  children: List<Widget>.generate(_couples.length, (int index) {
+                    children: List<Widget>.generate(_couples.length, (int index) {
 
-                    ///If is not nested then we will use the normal [LayoutGridChild]
-                    ///
-                    ///We pass top and left to the positioned widget inside of it,
-                    ///and the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0)
-                    ///
-                    ///We assign an UniqueKey so that flutter is forced to update the widget
-                    if (!_couples[index].isNested) {
+                      if (_couples[index].sizeModelKey != null) {
+                        SizeModel.of(context).updateSize(_couples[index].sizeModelKey, Size(_col[_couples[index].col1] - _col[_couples[index].col0],
+                                                                                            _rows[_couples[index].row1] - _rows[_couples[index].row0]));
+                      }
 
+                      ///If is not nested then we will use the normal [LayoutGridChild]
+                      ///
+                      ///We pass top and left to the positioned widget inside of it,
+                      ///and the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0)
+                      ///
+                      ///We assign an UniqueKey so that flutter is forced to update the widget
                       return LayoutGridChild(
                         key: UniqueKey(),
 
@@ -187,31 +192,14 @@ class _LayoutGridState extends State<LayoutGrid> {
                         boxFit: _couples[index].boxFit,
                         alignment: _couples[index].alignment,
                       );
-                    } else {
-
-                      ///If isNested then we use the [NestedLayoutGridChild] that has one main difference with the previous one
-                      ///It requires a [NestedLayoutGrid] and will pass to it the width and height of the specific area
-                      ///so that Flutter won't throw an error regarding the nesting of stacks
-
-                      return NestedLayoutGridChild(
-                        key: UniqueKey(),
-                        top: _rows[_couples[index].row0],
-                        left: _col[_couples[index].col0],
-
-                        height: _rows[_couples[index].row1] - _rows[_couples[index].row0],
-                        width: _col[_couples[index].col1] - _col[_couples[index].col0],
-
-                        widget: _couples[index].widget,
-
-                        boxFit: _couples[index].boxFit,
-                        alignment: _couples[index].alignment,
-                      );
                     }
-                  })),
-            ),
-          ]),
-        );
-      },
+                  )
+                ),
+              ),
+            ]),
+          );
+        },
+      ),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_web/material.dart';
 
+import 'Util/InheritedSizeMap.dart';
 import 'Util/area_creation.dart';
 import 'Util/layout_grid_child.dart';
 import 'Util/line_creation.dart';
@@ -15,8 +16,8 @@ class NestedLayoutGrid extends StatefulWidget {
   final List<LayoutGridCouple> couples;
   final List<List<String>> areas;
 
-  double width;
-  double height;
+  final double width;
+  final double height;
 
   final Axis scrollDirection;
 
@@ -26,6 +27,8 @@ class NestedLayoutGrid extends StatefulWidget {
     @required this.couples,
     this.areas,
     this.scrollDirection = Axis.vertical,
+    this.height,
+    this.width,
   });
 
   List<LayoutGridCouple> calculatedCouples;
@@ -57,6 +60,12 @@ class _NestedLayoutGridState extends State<NestedLayoutGrid> {
       child: Stack(
           fit: StackFit.expand,
           children: List<Widget>.generate(_couples.length, (int index) {
+
+            if (_couples[index].sizeModelKey != null) {
+              SizeModel.of(context).updateSize(_couples[index].sizeModelKey, Size(_col[_couples[index].col1] - _col[_couples[index].col0],
+                                                                                  _rows[_couples[index].row1] - _rows[_couples[index].row0]));
+            }
+
             return LayoutGridChild(
 
               key: UniqueKey(),
