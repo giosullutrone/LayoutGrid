@@ -8,7 +8,9 @@ import 'Util/nested_layout_grid_child.dart';
 import 'layout_grid_couple.dart';
 
 ///A Stack widget that reacts to device || web page size changes and that lets you divide the space in areas.
+///
 ///You can create columns and rows lines and name the area defined by them or just specify where the widget begins and ends.
+///
 ///Similar to CSS Grid.
 ///
 ///Manly used for web pages but can be also useful for mobile devices.
@@ -30,10 +32,11 @@ import 'layout_grid_couple.dart';
 ///   or you can say col0: 1, col1: 3, row0: 0, row1: 1 which will net the same result
 /// 
 ///   Note that you can call different areas with the same name to tell the widget to expand the area 
+/// 
 ///   Note n.2 Carefull with the use of the same area name because the widget doesn't check whether they are near each other
 ///            but will instead just try to create the biggest area with the same name which in some cases can be extremely useful
 /// 
-///            Ex You can create an extended area by naming the two opposite corners the same string
+///   Ex You can create an extended area by naming the two opposite corners the same string
 /// 
 ///          col:  1fr        2fr        1fr    rows:
 ///           0  |-----|---------------|------| 
@@ -45,7 +48,8 @@ import 'layout_grid_couple.dart';
 ///           2  |----------------------------|
 ///              0     1               2      3
 /// 
-///             The top will span from col0: 0 , row0:0 to col1: 3, row1:2,
+///   The top will span from col0: 0 , row0:0 to col1: 3, row1:2,
+
 class LayoutGrid extends StatefulWidget {
 
   LayoutGrid({

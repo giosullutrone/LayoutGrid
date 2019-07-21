@@ -20,8 +20,8 @@ class _MyAppState extends State<MyApp> {
         body: Container(
           child: LayoutGrid(
 
-            columns: ["1fr", "2fr", "2fr", "2fr", "2fr", "1fr"],
-            rows: ["100%", "50px" , "50%", "50px", "15%", "50%", "50px", "15%"],
+            columns: ["1fr", "2fr", "300px", "300px", "2fr", "1fr"],
+            rows: ["100%", "50px" , "600px", "50px", "15%", "50%", "50px", "10%"],
 
             areas:[["......", ".....",  "....." , "....." , ".....", "....."],
                     [".....", ".....", "......","......", ".....","....."],
@@ -34,9 +34,9 @@ class _MyAppState extends State<MyApp> {
                   ],
 
             couples: [LayoutGridCouple(widget: MainImage(), col0: 0, col1: 6, row0: 0, row1: 1, boxFit: BoxFit.cover),
-                      LayoutGridCouple(widget: topSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true),
+                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true),
 
-                      LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "aboutMe"),
+                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", isNested: true),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "label"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info0"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info1"),
@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-NestedLayoutGrid topSection(){
+NestedLayoutGrid TopSection(){
 
   return NestedLayoutGrid(
     columns: ["1fr","1fr","1fr","1fr","1fr"],
@@ -89,7 +89,7 @@ class MainText extends StatelessWidget {
     return Column(
       children:<Widget> [
         Container(
-          child: Text("CSS Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),
+          child: Text("Layout Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),
         ),
       ]
     );
@@ -114,6 +114,78 @@ class ScrollText extends StatelessWidget {
           ),
           Icon(Icons.keyboard_arrow_down, color: Color.fromRGBO(245, 245, 245, 0.75),size: 48.0,)
         ]
+      ),
+    );
+  }
+}
+
+
+NestedLayoutGrid AboutMeSection() {
+  return NestedLayoutGrid(
+    columns: ["10px","2fr", "300px", "2fr", "10px"],
+    rows: ["300px", "10px", "auto", "10px"],
+
+    couples: [LayoutGridCouple(widget: AboutMeImage(), col0: 2,col1: 3, row0: 0, row1: 1),
+              LayoutGridCouple(widget: AboutMeText(), col0: 1,col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown, alignment: Alignment(-1.0, -1.0)),
+              LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 4, boxFit: BoxFit.none,)],
+  );
+}
+
+class AboutMeText extends StatelessWidget {
+  const AboutMeText({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children:<Widget> [
+        Container(
+
+          padding: EdgeInsets.all(16.0),
+
+          child: Text("""I'm a flutter enthusiast and young developer
+that is trying to fill this container with text""",style: TextStyle(fontSize: 28.0,color: Color.fromRGBO(38, 38, 38, 0.75,), fontWeight: FontWeight.w200),),
+        ),
+      ]
+    );
+  }
+}
+
+class AboutMeImage extends StatelessWidget {
+  const AboutMeImage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+
+      width: 300,
+      height: 300,
+      
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+
+        image: DecorationImage(
+          
+          image: NetworkImage("https://pbs.twimg.com/profile_images/942158813259583488/muclNKDf_400x400.jpg"),
+        ),
+      ),
+    );
+  }
+}
+
+class BorderContainer extends StatelessWidget {
+  const BorderContainer({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Container(
+        decoration: BoxDecoration(
+
+          border: Border.all(
+            color: Color.fromRGBO(38, 38, 38, 0.75),
+            width: 3.0,
+          )
+        ),
       ),
     );
   }
