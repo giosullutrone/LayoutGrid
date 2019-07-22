@@ -1,6 +1,5 @@
 import 'package:flutter_web/material.dart';
-import 'package:layout_grid_for_web/nestedLayoutGrid.dart';
-import 'layouGrid.dart';
+import 'layout_grid.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,8 +20,10 @@ class _MyAppState extends State<MyApp> {
         body: Container(
           child: LayoutGrid(
 
-            columns: ["1fr", "2fr", "2fr", "2fr", "2fr", "1fr"],
-            rows: ["100%", "50px" , "50%", "50px", "15%", "50%", "50px", "15%"],
+            isAncestor: true,
+
+            columns: ["1fr", "2fr", "300px", "300px", "2fr", "1fr"],
+            rows: ["100%", "50px" , "600px", "50px", "15%", "50%", "50px", "10%"],
 
             areas:[["......", ".....",  "....." , "....." , ".....", "....."],
                     [".....", ".....", "......","......", ".....","....."],
@@ -35,9 +36,9 @@ class _MyAppState extends State<MyApp> {
                   ],
 
             couples: [LayoutGridCouple(widget: MainImage(), col0: 0, col1: 6, row0: 0, row1: 1, boxFit: BoxFit.cover),
-                      LayoutGridCouple(widget: topSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true),
+                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, sizeKey: "topSection"),
 
-                      LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "aboutMe"),
+                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", sizeKey: "aboutMe"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "label"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info0"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info1"),
@@ -48,21 +49,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-}
-
-NestedLayoutGrid topSection(){
-
-  return NestedLayoutGrid(
-    columns: ["1fr","1fr","1fr","1fr","1fr"],
-    rows: ["1fr", "1%", "2fr", "1%", "1fr"],
-
-    couples: [
-              LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 1, row1: 2, boxFit: BoxFit.fitWidth),
-              LayoutGridCouple(widget: MainText(), col0: 1, col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown),
-              LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 3, row1: 4, boxFit: BoxFit.fitWidth),
-              LayoutGridCouple(widget: ScrollText(), col0: 2, col1: 3, row0: 4, row1: 5, boxFit: BoxFit.scaleDown),],
-    
-  );
 }
 
 class MainImage extends StatelessWidget {
@@ -90,7 +76,7 @@ class MainText extends StatelessWidget {
     return Column(
       children:<Widget> [
         Container(
-          child: Text("CSS Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),          
+          child: Text("Layout Grid",style: TextStyle(fontSize: 196.0,color: Color.fromRGBO(245, 245, 245, 0.75)),),
         ),
       ]
     );
@@ -115,6 +101,121 @@ class ScrollText extends StatelessWidget {
           ),
           Icon(Icons.keyboard_arrow_down, color: Color.fromRGBO(245, 245, 245, 0.75),size: 48.0,)
         ]
+      ),
+    );
+  }
+}
+
+class TopSection extends StatelessWidget {
+  const TopSection({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    final String id = "topSection";
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
+
+    return LayoutGrid(
+
+      width:sizeModel.sizeMap[id].width,
+      height:sizeModel.sizeMap[id].height,
+
+      columns: ["1fr","1fr","1fr","1fr","1fr"],
+      rows: ["1fr", "1%", "2fr", "1%", "1fr"],
+
+      couples: [
+                LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 1, row1: 2, boxFit: BoxFit.fitWidth),
+                LayoutGridCouple(widget: MainText(), col0: 1, col1: 4, row0: 2, row1: 3, boxFit: BoxFit.scaleDown),
+                LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 3, row1: 4, boxFit: BoxFit.fitWidth),
+                LayoutGridCouple(widget: ScrollText(), col0: 2, col1: 3, row0: 4, row1: 5, boxFit: BoxFit.scaleDown),],
+      
+    );
+  }
+}
+
+class AboutMeSection extends StatelessWidget {
+  const AboutMeSection({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    final String id = "aboutMe";
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
+
+    return LayoutGrid(
+
+      columns: ["10px","2fr", "300px", "2fr", "10px"],
+      rows: ["10px","300px", "10px", "auto", "10px"],
+
+      width: sizeModel.sizeMap[id].width,
+      height: sizeModel.sizeMap[id].height,
+
+      couples: [LayoutGridCouple(widget: AboutMeImage(), col0: 2,col1: 3, row0: 1, row1: 2),
+                LayoutGridCouple(widget: AboutMeText(), col0: 1,col1: 4, row0: 3, row1: 4, boxFit: BoxFit.scaleDown, alignment: Alignment(-1.0, -1.0)),
+                LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 5, boxFit: BoxFit.none,sizeKey: "cont")],
+    );
+  }
+}
+
+class AboutMeText extends StatelessWidget {
+  const AboutMeText({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children:<Widget> [
+        Container(
+
+          padding: EdgeInsets.all(16.0),
+
+          child: Text("""I'm a flutter enthusiast and young developer
+that is trying to fill this container with text""",style: TextStyle(fontSize: 28.0,color: Color.fromRGBO(38, 38, 38, 0.75,), fontWeight: FontWeight.w200),),
+        ),
+      ]
+    );
+  }
+}
+
+class AboutMeImage extends StatelessWidget {
+  const AboutMeImage({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+
+      width: 300,
+      height: 300,
+      
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+
+        image: DecorationImage(
+          
+          image: NetworkImage("https://pbs.twimg.com/profile_images/942158813259583488/muclNKDf_400x400.jpg"),
+        ),
+      ),
+    );
+  }
+}
+
+class BorderContainer extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+
+    final String id = "cont";
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
+
+    return Container(
+
+      width: sizeModel.sizeMap[id].width,
+      height: sizeModel.sizeMap[id].height,
+
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Color.fromRGBO(38, 38, 38, 0.75),
+          width: 3.0,
+        )
       ),
     );
   }
