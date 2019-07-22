@@ -5,13 +5,11 @@ import 'Util/main_layout_grid.dart';
 import 'Util/nested_layout_grid.dart';
 import 'layout_grid_couple.dart';
 
-///A Stack widget that reacts to device || web page size changes and that lets you divide the space in areas.
+///A Stack widget that lets you divide its space in areas and link them to widgets.
 ///
-///You can create columns and rows lines and name the area defined by them or just specify where the widget begins and ends.
+///Widget can be linked to named areas or specific columns and rows
 ///
-///Similar to CSS Grid.
-///
-///Manly used for web pages but can be also useful for mobile devices.
+///Similar to CSS Grid, it reacts to constraints changes.
 ///It makes for a perfect responsive and simple to implement layout tool.
 ///
 ///Example of LayoutGrid: 
@@ -26,15 +24,22 @@ import 'layout_grid_couple.dart';
 ///           2  |----------------------------|
 ///              0     1               2      3
 /// 
-///   In this case you can assign using [LayoutGridCouple] a widget to the area "center"
-///   or you can say col0: 1, col1: 3, row0: 0, row1: 1 which will net the same result
+///   * You can assign a widget to the area "center" by using a [LaoyoutGridCouple] and passing the argument name: "center"
+///
+///   
+///   * Or you can pass col0: 1, col1: 3, row0: 0, row1: 1 
 /// 
-///   Note that you can call different areas with the same name to tell the widget to expand the area 
+///   
+///   Notes:
 /// 
-///   Note n.2 Carefull with the use of the same area name because the widget doesn't check whether they are near each other
-///            but will instead just try to create the biggest area with the same name which in some cases can be extremely useful
+///   * You can call different areas the same to expand that area
 /// 
-///   Ex You can create an extended area by naming the two opposite corners the same string
+///   * The LayoutBuilder will not check if they are adjacent but will try to create the biggest area
+/// 
+///Example:
+///   
+///   * You can create an extended area by naming the two opposite corners the same string
+/// 
 /// 
 ///          col:  1fr        2fr        1fr    rows:
 ///           0  |-----|---------------|------| 
@@ -47,7 +52,6 @@ import 'layout_grid_couple.dart';
 ///              0     1               2      3
 /// 
 ///   The top will span from col0: 0 , row0:0 to col1: 3, row1:2,
-
 class LayoutGrid extends StatefulWidget {
 
   LayoutGrid({
@@ -58,13 +62,24 @@ class LayoutGrid extends StatefulWidget {
     this.width,
     this.height,
     this.scrollDirection = Axis.vertical,
-    this.isMain = false,
+    this.isAncestor = false,
     Key key,
   }):super(key: key);
 
-  /// Every element of the columns and rows list is a line that is defined by a unit of measure that tells the widget where to place the subdivisory line
+  /// Every element of the list is a line that is defined by a unit of measure that tells the widget where to place the subdivisory line
   ///
-  /// ex. ["20px", "2fr", "30%" , "4fr"]
+  /// ex.      col:  1fr        2fr        1fr    rows:
+  ///           0  |-----|---------------|------| 
+  ///              |     |               |      | 50%
+  ///              | top |               |      |
+  ///           1  |-----|---------------|------|
+  ///              |     |               |top   |
+  ///              |     |               |      | 50%
+  ///           2  |----------------------------|
+  ///              0     1               2      3
+  /// 
+  /// [columns] = ["1fr", "2fr", "1fr"]
+  /// [rows] = ["50%", "50%"]
   ///
   /// Unit of measure avaible:
   ///
@@ -81,16 +96,16 @@ class LayoutGrid extends StatefulWidget {
   /// 
   /// * "auto" == remaining free space 
   ///   
-  ///   (Carefull not to use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
-  ///
+  ///   (Don't use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
   final List<String> columns, rows;
 
-  ///[LayoutGridCouple] will let you link a widget to an area by name or by col0,col1,row0,row1
+  ///[LayoutGridCouple] will let you link a widget to an area by [name] or by [col0],[col1],[row0],[row1]
   ///
-  ///You can also specify a boxfit and an align
+  ///You can also specify a [boxFit] and an [alignment]
   ///
-  ///It has the isNested variable which is used to tell the LayoutGrid that the child is a NestedGridLayout and has to pass it
-  ///a specific widh and height otherwise the flutter engine will throw an error 
+  ///It has the [sizeKey] which is used to archive and access the saved Size of the [widget] inside of the [InheritedSizeModel]
+  ///
+  ///Used to directly assign the size of the area to the widget instead of using a boxFit which may distort its child
   final List<LayoutGridCouple> couples;
 
   ///List of list used to assign names to the various areas
@@ -107,18 +122,18 @@ class LayoutGrid extends StatefulWidget {
   ///              0     1               2      3
   /// 
   ///   list = [["top","center","right",],
-  ///           ["left","center","top",]]  
+  ///           ["left","center","top",]]
   final List<List<String>> areas;
 
-  ///You can pass the width and height var in order to force the Stack to a specific size instead of having it adapt to
-  ///the BoxConstraints  
+  ///Used for [NestedLayoutGrid] that are dependent on the ancestor stack for size
   final double width, height;
 
   final Axis scrollDirection;
 
-  final bool isMain;
+  ///[true] if it the ancestor stack which will manage all draw calls and the creation and manipulation of the [InheritedSizeModel]
+  final bool isAncestor;
 
-  ///Couples that have been manipulated in order to convert them from having only names specified to col0,col1,row0,row1
+  //Used to store the manipulated and ready-to-use couples
   List<LayoutGridCouple> calculatedCouples;
 
   _LayoutGridState createState() => _LayoutGridState();
@@ -144,11 +159,10 @@ class _LayoutGridState extends State<LayoutGrid> {
   @override
   Widget build(BuildContext context) {
 
-    //if isMain then we return a LayoutGrid with a SizeModel and
-    //a LayoutBuilder to update sizes and redraw its children
+    //if isAncestor then we return a LayoutGrid with a SizeModel and a LayoutBuilder to update sizes and redraw its children
     //else we just use a nestedLayoutGrid without a builder and with width and height specified
-    if(widget.isMain) {
-      return MainLayoutGrid(
+    if(widget.isAncestor) {
+      return AncestorLayoutGrid(
         columns: widget.columns,
         rows: widget.rows,
         couples: _couples,

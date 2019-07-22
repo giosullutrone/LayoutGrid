@@ -17,7 +17,7 @@ class LayoutGridCouple {
     this.row1 = -1,
     this.boxFit = BoxFit.none,
     this.alignment = const Alignment(0.0, 0.0),
-    this.sizeModelKey}
+    this.sizeKey}
   );
 
   final Widget widget;
@@ -25,5 +25,5 @@ class LayoutGridCouple {
   final String name;
   final BoxFit boxFit;
   final Alignment alignment;
-  final String sizeModelKey;
+  final String sizeKey;
 }

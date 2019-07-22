@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
         body: Container(
           child: LayoutGrid(
 
-            isMain: true,
+            isAncestor: true,
 
             columns: ["1fr", "2fr", "300px", "300px", "2fr", "1fr"],
             rows: ["100%", "50px" , "600px", "50px", "15%", "50%", "50px", "10%"],
@@ -36,9 +36,9 @@ class _MyAppState extends State<MyApp> {
                   ],
 
             couples: [LayoutGridCouple(widget: MainImage(), col0: 0, col1: 6, row0: 0, row1: 1, boxFit: BoxFit.cover),
-                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, sizeModelKey: "topSection"),
+                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, sizeKey: "topSection"),
 
-                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", sizeModelKey: "aboutMe"),
+                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", sizeKey: "aboutMe"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "label"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info0"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info1"),
@@ -152,7 +152,7 @@ class AboutMeSection extends StatelessWidget {
 
       couples: [LayoutGridCouple(widget: AboutMeImage(), col0: 2,col1: 3, row0: 1, row1: 2),
                 LayoutGridCouple(widget: AboutMeText(), col0: 1,col1: 4, row0: 3, row1: 4, boxFit: BoxFit.scaleDown, alignment: Alignment(-1.0, -1.0)),
-                LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 5, boxFit: BoxFit.none,sizeModelKey: "cont")],
+                LayoutGridCouple(widget: BorderContainer(), col0: 0,col1: 5, row0: 0, row1: 5, boxFit: BoxFit.none,sizeKey: "cont")],
     );
   }
 }

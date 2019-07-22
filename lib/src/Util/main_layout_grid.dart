@@ -6,22 +6,26 @@ import 'custom_scroll_behavior.dart';
 import 'layout_grid_child.dart';
 import 'line_creation.dart';
 
-class MainLayoutGrid extends StatelessWidget {
-  MainLayoutGrid({
+class AncestorLayoutGrid extends StatelessWidget {
+
+  AncestorLayoutGrid({
     @required this.couples,
-    this.scrollDirection = Axis.vertical,
     @required this.columns,
     @required this.rows,
+    this.scrollDirection = Axis.vertical,
     Key key,
-  }):super(key: key);
+  }) : assert(couples != null),
+       assert(columns != null),
+       assert(rows != null),
+       super(key: key);
 
-  final Axis scrollDirection;
-  final List<LayoutGridCouple> couples;
   final List<String> columns, rows;
+  final List<LayoutGridCouple> couples;
+  final Axis scrollDirection;
 
+  BoxConstraints _lastConstraints;
   List<double> _col, _rows;
   double _top,_left,_width,_height;
-  BoxConstraints _lastConstraints;
 
   @override
   Widget build(BuildContext context) {
@@ -51,39 +55,40 @@ class MainLayoutGrid extends StatelessWidget {
 
                 child: Stack(
                     
-                    fit: StackFit.expand,
+                  fit: StackFit.expand,
 
-                    children: List<Widget>.generate(couples.length, (int index) {
+                  children: List<Widget>.generate(couples.length, (int index) {
 
-                      _top = _rows[couples[index].row0];
-                      _left = _col[couples[index].col0];
-                      _height = _rows[couples[index].row1] - _rows[couples[index].row0];
-                      _width = _col[couples[index].col1] - _col[couples[index].col0];
+                    _top = _rows[couples[index].row0];
+                    _left = _col[couples[index].col0];
+                    _height = _rows[couples[index].row1] - _rows[couples[index].row0];
+                    _width = _col[couples[index].col1] - _col[couples[index].col0];
 
-                      if (couples[index].sizeModelKey != null) {
-                        InheritedSizeModel.of(context).updateSize(couples[index].sizeModelKey, Size(_width,_height));
-                      }
-
-                      //We pass top and left to the positioned widget inside of it,
-                      //and the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0)
-                      //
-                      //We assign an UniqueKey so that flutter is forced to update the widget
-                      return LayoutGridChild(
-                        key: UniqueKey(),
-
-                        top: _top,
-                        left: _left,
-
-                        height: _height,
-                        width: _width,
-
-                        widget: couples[index].widget,
-
-                        boxFit: couples[index].boxFit,
-                        alignment: couples[index].alignment,
-                      );
+                    //If the user gave a key to the widget then we add or update the Size associated with that key,
+                    //making it accessible from elsewhere just by calling the InheritedSizeModel
+                    if (couples[index].sizeKey != null) {
+                      InheritedSizeModel.of(context).updateSize(couples[index].sizeKey, Size(_width,_height));
                     }
-                  )
+
+                    //We pass top and left to the positioned widget inside of the LayoutGridChild,
+                    //The height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
+                    //
+                    //We assign an UniqueKey so that flutter is forced to update the widget
+                    return LayoutGridChild(
+                      key: UniqueKey(),
+
+                      top: _top,
+                      left: _left,
+
+                      height: _height,
+                      width: _width,
+
+                      widget: couples[index].widget,
+
+                      boxFit: couples[index].boxFit,
+                      alignment: couples[index].alignment,
+                    );
+                  })
                 ),
               ),
             ]),
