@@ -1,11 +1,8 @@
 import 'package:flutter_web/material.dart';
-import 'package:layout_grid_for_web/src/Util/InheritedSizeMap.dart';
 
 import 'Util/area_creation.dart';
-import 'Util/custom_scroll_behavior.dart';
-import 'Util/layout_grid_child.dart';
-import 'Util/line_creation.dart';
-import 'Util/nested_layout_grid_child.dart';
+import 'Util/main_layout_grid.dart';
+import 'Util/nested_layout_grid.dart';
 import 'layout_grid_couple.dart';
 
 ///A Stack widget that reacts to device || web page size changes and that lets you divide the space in areas.
@@ -61,21 +58,30 @@ class LayoutGrid extends StatefulWidget {
     this.width,
     this.height,
     this.scrollDirection = Axis.vertical,
+    this.isMain = false,
     Key key,
   }):super(key: key);
 
-  ///Every element of the columns and rows list is a line that is defined by a unit of measure that tells the widget where to place the subdivisory line
+  /// Every element of the columns and rows list is a line that is defined by a unit of measure that tells the widget where to place the subdivisory line
   ///
-  ///Unit of measure avaible:
+  /// ex. ["20px", "2fr", "30%" , "4fr"]
   ///
-  ///"px" == simple pixel
+  /// Unit of measure avaible:
   ///
-  ///"%" == percentage of Stack size (if columns => percentage of width, else if rows => percentage of height)
+  /// * "px" == simple pixel
+  /// 
   ///
-  ///"fr" == fraction of free Stack size (The widget divides the free space between the different fractions ex. "1fr", "2fr" => 
-  ///It will divide the space in (1 + 2) parts and then assign 1 part to the first column and 2 to the second)
+  /// * "%" == percentage of Stack size (if columns => percentage of width, else if rows => percentage of height)
+  /// 
   ///
-  ///"auto" == remaining free space (Carefull not to use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
+  /// * "fr" == fraction of free space (The widget divides the free space between the different fractions .
+  /// 
+  ///   ex. "1fr", "2fr" => It will divide the space in (1 + 2) parts and then assign 1 part to the first column and 2 to the second)
+  /// 
+  /// 
+  /// * "auto" == remaining free space 
+  ///   
+  ///   (Carefull not to use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
   ///
   final List<String> columns, rows;
 
@@ -110,110 +116,52 @@ class LayoutGrid extends StatefulWidget {
 
   final Axis scrollDirection;
 
+  final bool isMain;
+
   ///Couples that have been manipulated in order to convert them from having only names specified to col0,col1,row0,row1
   List<LayoutGridCouple> calculatedCouples;
 
   _LayoutGridState createState() => _LayoutGridState();
 }
 
+
 class _LayoutGridState extends State<LayoutGrid> {
-  BoxConstraints _lastConstraints;
-  List<double> _col;
-  List<double> _rows;
+
   List<LayoutGridCouple> _couples;
 
   @override
   void initState() {
     super.initState();
 
-    ///We convert the various named couples ([LayoutGridCouple]s with area names instead of rows and columns]
-    ///to couples with cols and rows specified
-    ///
-    ///We only do the calculation once 
+    //We convert the various named couples (LayoutGridCouples with area names instead of rows and columns)
+    //to couples with cols and rows specified
+    //
+    //We only do the calculation once 
     if (widget.calculatedCouples == null) widget.calculatedCouples = getPositionedGridCoupleList(widget.areas, widget.couples);
     _couples = widget.calculatedCouples;
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizeModel(
-      
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
 
-          ///We make sure that the constraints have changed before re-calculating everything wasting resources
-          if (_lastConstraints != constraints) {
-            ///We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
-            updateGrid(constraints, widget.width, widget.height);
-            _lastConstraints = constraints;
-          }
-
-          return ScrollConfiguration(
-            ///We use [ScrollConfiguration] to remove the list glow that is used manly on mobile devices
-            behavior: CustomScrollBehavior(),
-
-            child: ListView(scrollDirection: widget.scrollDirection, children: <Widget>[
-
-              Container(
-
-                ///We have to create a container to wrap our Stack, giving it specific a size
-                ///The size that we will giv will be that of our last previously calculated cols and rows
-                height: _rows.last,
-                width: _col.last,
-
-                child: Stack(
-                    
-                    fit: StackFit.expand,
-
-                    children: List<Widget>.generate(_couples.length, (int index) {
-
-                      if (_couples[index].sizeModelKey != null) {
-                        SizeModel.of(context).updateSize(_couples[index].sizeModelKey, Size(_col[_couples[index].col1] - _col[_couples[index].col0],
-                                                                                            _rows[_couples[index].row1] - _rows[_couples[index].row0]));
-                      }
-
-                      ///If is not nested then we will use the normal [LayoutGridChild]
-                      ///
-                      ///We pass top and left to the positioned widget inside of it,
-                      ///and the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0)
-                      ///
-                      ///We assign an UniqueKey so that flutter is forced to update the widget
-                      return LayoutGridChild(
-                        key: UniqueKey(),
-
-                        top: _rows[_couples[index].row0],
-                        left: _col[_couples[index].col0],
-
-                        height: _rows[_couples[index].row1] - _rows[_couples[index].row0],
-                        width: _col[_couples[index].col1] - _col[_couples[index].col0],
-
-                        widget: _couples[index].widget,
-
-                        boxFit: _couples[index].boxFit,
-                        alignment: _couples[index].alignment,
-                      );
-                    }
-                  )
-                ),
-              ),
-            ]),
-          );
-        },
-      ),
-    );
-  }
-
-  void updateGrid(BoxConstraints constraints, double width, double height) {
-    if (width != null) {
-      _col = calculateGridLines(widget.columns, width);
-    } else {
-      _col = calculateGridLines(widget.columns, constraints.maxWidth);
-    }
-
-    if (height != null) {
-      _rows = calculateGridLines(widget.rows, height);
-    } else {
-      _rows = calculateGridLines(widget.rows, constraints.maxHeight);
+    //if isMain then we return a LayoutGrid with a SizeModel and
+    //a LayoutBuilder to update sizes and redraw its children
+    //else we just use a nestedLayoutGrid without a builder and with width and height specified
+    if(widget.isMain) {
+      return MainLayoutGrid(
+        columns: widget.columns,
+        rows: widget.rows,
+        couples: _couples,
+        scrollDirection: widget.scrollDirection,
+      );
+    }else {
+      return NestedLayoutGrid(
+        columns: widget.columns,
+        rows: widget.rows,
+        couples: _couples,
+        height: widget.height,
+        width: widget.width,
+      );
     }
   }
 }

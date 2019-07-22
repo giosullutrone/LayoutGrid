@@ -20,6 +20,8 @@ class _MyAppState extends State<MyApp> {
         body: Container(
           child: LayoutGrid(
 
+            isMain: true,
+
             columns: ["1fr", "2fr", "300px", "300px", "2fr", "1fr"],
             rows: ["100%", "50px" , "600px", "50px", "15%", "50%", "50px", "10%"],
 
@@ -34,9 +36,9 @@ class _MyAppState extends State<MyApp> {
                   ],
 
             couples: [LayoutGridCouple(widget: MainImage(), col0: 0, col1: 6, row0: 0, row1: 1, boxFit: BoxFit.cover),
-                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, isNested: true, sizeModelKey: "topSection"),
+                      LayoutGridCouple(widget: TopSection(),col0: 0,col1: 6,row0: 0, row1: 1, boxFit: BoxFit.cover, sizeModelKey: "topSection"),
 
-                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", isNested: true, sizeModelKey: "aboutMe"),
+                      LayoutGridCouple(widget: AboutMeSection(), name: "aboutMe", sizeModelKey: "aboutMe"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "label"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info0"),
                       LayoutGridCouple(widget: TestContainer(color: Colors.teal,), name: "info1"),
@@ -111,9 +113,9 @@ class TopSection extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "topSection";
-    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
 
-    return NestedLayoutGrid(
+    return LayoutGrid(
 
       width:sizeModel.sizeMap[id].width,
       height:sizeModel.sizeMap[id].height,
@@ -138,9 +140,10 @@ class AboutMeSection extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "aboutMe";
-    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
 
-    return NestedLayoutGrid(
+    return LayoutGrid(
+
       columns: ["10px","2fr", "300px", "2fr", "10px"],
       rows: ["10px","300px", "10px", "auto", "10px"],
 
@@ -201,7 +204,7 @@ class BorderContainer extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "cont";
-    final SizeModel sizeModel = SizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
 
     return Container(
 
