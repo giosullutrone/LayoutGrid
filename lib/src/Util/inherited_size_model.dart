@@ -15,18 +15,18 @@ class InheritedSizeModel extends InheritedModel<String> {
 
   @override
   bool updateShouldNotify(InheritedSizeModel old) {
-    
+
     return (sizeMap != old.sizeMap);
   }
 
   @override
-  bool updateShouldNotifyDependent(InheritedSizeModel old, Set<String> aspects) {
+  bool updateShouldNotifyDependent(InheritedSizeModel old, Set<String> dependencies) {
 
-    return (sizeMap.containsKey(aspects)) && (sizeMap[aspects] != old.sizeMap[aspects]);
+    return (sizeMap.containsKey(dependencies)) && (sizeMap[dependencies] != old.sizeMap[dependencies]);
   }
   
-  static InheritedSizeModel of(BuildContext context, {String aspect}) {
-    return InheritedModel.inheritFrom<InheritedSizeModel>(context, aspect: aspect);
+  static InheritedSizeModel of(BuildContext context, {String sizeKey}) {
+    return InheritedModel.inheritFrom<InheritedSizeModel>(context, aspect: sizeKey);
   }
 
   void updateSize(String key, Size size){

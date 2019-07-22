@@ -113,7 +113,7 @@ class TopSection extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "topSection";
-    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
 
     return LayoutGrid(
 
@@ -140,7 +140,7 @@ class AboutMeSection extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "aboutMe";
-    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
 
     return LayoutGrid(
 
@@ -204,7 +204,7 @@ class BorderContainer extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final String id = "cont";
-    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, aspect: id);
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: id);
 
     return Container(
 
