@@ -3,11 +3,13 @@ import 'package:flutter_web/material.dart';
 import '../layout_grid_couple.dart';
 import 'inherited_size_model.dart';
 import 'layout_grid_child.dart';
+import 'layout_grid_unit.dart';
+import 'layout_grid_unit_classes.dart';
 import 'line_creation.dart';
 
 class NestedLayoutGrid extends StatelessWidget {
   
-  final List<String> columns,rows;
+  final List<LayoutUnit> columns,rows;
   final List<LayoutGridCouple> couples;
   final double width, height;
 

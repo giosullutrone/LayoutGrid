@@ -1,71 +1,5 @@
-abstract class LayoutUnit {}
-
-abstract class _SingleUnit extends LayoutUnit{}
-
-abstract class _FreeSpaceIndependent extends _SingleUnit{}
-
-class LayoutPixel extends _FreeSpaceIndependent{
-
-  LayoutPixel({
-    this.value,
-  });
-
-  double value;
-
-  double getValue() {
-    return value;
-  }
-}
-
-class LayoutPercentage extends _FreeSpaceIndependent{
-
-  LayoutPercentage({
-    this.percentage,
-  }) : assert(
-    percentage <= 1.0 && percentage >= 0.0
-  );
-
-  ///From 0.0 to 1.0
-  double percentage;
-
-  double getValue(double size) {
-    return percentage * size;
-  }
-}
-
-class LayoutFraction extends _SingleUnit{
-
-  LayoutFraction({
-    this.fraction,
-  }) : assert(
-    fraction != null,
-  );
-
-  int fraction;
-
-  double getValue(int sumOfFractions, double freeSpace) {
-    return fraction / sumOfFractions * freeSpace;
-  }
-}
-
-class LayoutMinMax extends LayoutUnit {
-
-  LayoutMinMax({
-    this.minUnit,
-    this.maxUnit,
-  });
-
-  _FreeSpaceIndependent minUnit;
-  _SingleUnit maxUnit;
-
-  _FreeSpaceIndependent getMinUnit() {
-    return minUnit;
-  }
-
-  _SingleUnit getMaxUnit() {
-    return maxUnit;
-  }
-}
+import 'layout_grid_unit.dart';
+import 'layout_grid_unit_classes.dart';
 
 List<double> calculateGridLines(List<LayoutUnit> list, double space) {
 
@@ -89,7 +23,7 @@ List<double> calculateGridLines(List<LayoutUnit> list, double space) {
 
     double _maxValue;
     double _minValue;
-    LayoutPixel _newLayoutPixel;
+    LayoutPixel _newLayoutPixel = LayoutPixel();
     LayoutMinMax _layoutMinMax;
 
     if (_list[_i] is LayoutMinMax) {
@@ -104,10 +38,10 @@ List<double> calculateGridLines(List<LayoutUnit> list, double space) {
           _freeSpace -= _maxValue;
         }else {
           if(_freeSpace > _minValue) {
-            _newLayoutPixel.value = _freeSpace;
+            _newLayoutPixel.pixels = _freeSpace;
             _freeSpace = 0;
           }else if (_freeSpace < _minValue) {
-            _newLayoutPixel.value = _minValue;
+            _newLayoutPixel.pixels = _minValue;
             _freeSpace = 0;
           }
 
@@ -124,7 +58,7 @@ List<double> calculateGridLines(List<LayoutUnit> list, double space) {
 
     double _maxValue;
     double _minValue;
-    LayoutPixel _newLayoutPixel;
+    LayoutPixel _newLayoutPixel = LayoutPixel();
     LayoutFraction _layoutFraction;
     LayoutMinMax _layoutMinMax;
 
@@ -141,7 +75,7 @@ List<double> calculateGridLines(List<LayoutUnit> list, double space) {
           _sumOfFractions -= _layoutFraction.fraction;
           _freeSpace -= _minValue;
 
-          _newLayoutPixel.value = _minValue;
+          _newLayoutPixel.pixels = _minValue;
           _layoutMinMax.maxUnit = _newLayoutPixel;
           _list[_i] = _layoutMinMax;
         }
@@ -155,7 +89,7 @@ List<double> calculateGridLines(List<LayoutUnit> list, double space) {
     LayoutMinMax _layoutMinMax;
     double _value = 0.0;
 
-    if(_list[_i] is _SingleUnit) {
+    if(_list[_i] is SingleUnit) {
       _value = getValueFromLayoutUnit(_list[_i], space, _freeSpace, _sumOfFractions);
 
       _finalList[_i + 1] = _value + _currentPosition;
@@ -177,7 +111,7 @@ double getValueFromLayoutUnit(LayoutUnit layoutUnit, double space,double freeSpa
   double _value = 0.0;
 
   if (layoutUnit is LayoutPixel) {
-    _value = layoutUnit.value;
+    _value = layoutUnit.pixels;
   }else if (layoutUnit is LayoutPercentage) {
     _value = layoutUnit.getValue(space);
   }else if (layoutUnit is LayoutFraction) {

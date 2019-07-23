@@ -22,8 +22,21 @@ class _MyAppState extends State<MyApp> {
 
             isAncestor: true,
 
-            columns: ["1fr", "2fr", "300px", "300px", "2fr", "1fr"],
-            rows: ["100%", "50px" , "600px", "50px", "15%", "50%", "50px", "10%"],
+            columns: [LayoutFraction(fraction: 1),
+                      LayoutFraction(fraction: 2), 
+                      LayoutMinMax(minUnit: LayoutPixel(pixels: 100), maxUnit: LayoutPixel(pixels: 300)), 
+                      LayoutMinMax(minUnit: LayoutPixel(pixels: 100), maxUnit: LayoutPixel(pixels: 300)), 
+                      LayoutFraction(fraction: 2), 
+                      LayoutFraction(fraction: 1)],
+
+            rows: [LayoutPercentage(percentage: 100), 
+                   LayoutPixel(pixels: 50) ,  
+                   LayoutMinMax(minUnit: LayoutPixel(pixels: 200), maxUnit: LayoutPixel(pixels: 600)), 
+                   LayoutPixel(pixels: 50), 
+                   LayoutPercentage(percentage: 15), 
+                   LayoutPercentage(percentage: 50), 
+                   LayoutPixel(pixels: 50), 
+                   LayoutPercentage(percentage: 10)],
 
             areas:[["......", ".....",  "....." , "....." , ".....", "....."],
                     [".....", ".....", "......","......", ".....","....."],
@@ -120,8 +133,8 @@ class TopSection extends StatelessWidget {
       width:sizeModel.sizeMap[id].width,
       height:sizeModel.sizeMap[id].height,
 
-      columns: ["1fr","1fr","1fr","1fr","1fr"],
-      rows: ["1fr", "1%", "2fr", "1%", "1fr"],
+      columns: List<LayoutFraction>.generate(5,(int index) => LayoutFraction(fraction: 1)),
+      rows: [LayoutFraction(fraction: 1), LayoutPercentage(percentage: 1), LayoutFraction(fraction: 2), LayoutPercentage(percentage: 1), LayoutFraction(fraction: 1)],
 
       couples: [
                 LayoutGridCouple(widget: TestContainer(color: Color.fromRGBO(245, 245, 245, 0.75),), col0: 0, col1: 5, row0: 1, row1: 2, boxFit: BoxFit.fitWidth),
@@ -144,8 +157,8 @@ class AboutMeSection extends StatelessWidget {
 
     return LayoutGrid(
 
-      columns: ["10px","2fr", "300px", "2fr", "10px"],
-      rows: ["10px","300px", "10px", "auto", "10px"],
+      columns: [LayoutPixel(pixels: 10),LayoutFraction(fraction: 2), LayoutPixel(pixels: 300), LayoutFraction(fraction: 2), LayoutPixel(pixels: 10)],
+      rows: [LayoutPixel(pixels: 10),LayoutPixel(pixels: 300), LayoutPixel(pixels: 10), LayoutFraction(fraction: 1), LayoutPixel(pixels: 10)],
 
       width: sizeModel.sizeMap[id].width,
       height: sizeModel.sizeMap[id].height,

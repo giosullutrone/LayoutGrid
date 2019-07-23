@@ -4,6 +4,8 @@ import '../layout_grid_couple.dart';
 import 'inherited_size_model.dart';
 import 'custom_scroll_behavior.dart';
 import 'layout_grid_child.dart';
+import 'layout_grid_unit.dart';
+import 'layout_grid_unit_classes.dart';
 import 'line_creation.dart';
 
 class AncestorLayoutGrid extends StatelessWidget {
@@ -19,7 +21,7 @@ class AncestorLayoutGrid extends StatelessWidget {
        assert(rows != null),
        super(key: key);
 
-  final List<String> columns, rows;
+  final List<LayoutUnit> columns, rows;
   final List<LayoutGridCouple> couples;
   final Axis scrollDirection;
 
