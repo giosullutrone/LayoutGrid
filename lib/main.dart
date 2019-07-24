@@ -22,15 +22,18 @@ class _MyAppState extends State<MyApp> {
 
             isAncestor: true,
 
-            columns: [LayoutPixel(pixels: 100), LayoutMinMax(minUnit: LayoutPixel(pixels: 200),maxUnit: LayoutPixel(pixels: 400))],
+            columns: [LayoutMinMax(minUnit: LayoutPixel(pixels: 200),maxUnit: LayoutPixel(pixels: 800)), 
+                      LayoutMinMax(minUnit: LayoutPixel(pixels: 200),maxUnit: LayoutPixel(pixels: 800)),],
 
-            rows: [LayoutPixel(pixels: 100), LayoutMinMax(minUnit: LayoutPixel(pixels: 200),maxUnit: LayoutFraction(fraction: 1)), LayoutFraction(fraction: 2)],
+            rows: [LayoutDependent(line: 1, multiplicator: 1), 
+                   LayoutDependent(line: 1, multiplicator: 1),],
 
-            areas:[["left", "top", "right"],
-                   ["left", "center", "right"],
+            areas:[["top", "right"],
+                   ["center", "right"],
                   ],
 
-            couples: [LayoutGridCouple(widget: TestContainer(color: Colors.amber,), name: "center", sizeKey: "centerSize")],
+            couples: [LayoutGridCouple(widget: TestContainer(color: Colors.amber,), name: "center", sizeKey: "centerSize"),
+                      LayoutGridCouple(widget: TestContainer1(color: Colors.amber,), name: "top", sizeKey: "topSize")],
 
           )
         ),
@@ -51,7 +54,28 @@ class TestContainer extends StatelessWidget {
     final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: key);
 
     return Container(
-      height: sizeModel.getHeight(key),
+      height: sizeModel.getWidth(key),
+      width: sizeModel.getWidth(key),
+      decoration: BoxDecoration(
+        color: color,
+      ),
+    );
+  }
+}
+
+class TestContainer1 extends StatelessWidget {
+  final Color color;
+
+  TestContainer1({@required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+
+    final String key = "topSize";
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: key);
+
+    return Container(
+      height: sizeModel.getWidth(key),
       width: sizeModel.getWidth(key),
       decoration: BoxDecoration(
         color: color,

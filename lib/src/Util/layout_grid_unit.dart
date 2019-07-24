@@ -45,7 +45,7 @@ class LayoutFraction extends SingleUnit{
   }
 }
 
-class LayoutMinMax extends LayoutUnit {
+class LayoutMinMax extends LayoutIndependent {
 
   LayoutMinMax({
     this.minUnit,
@@ -65,4 +65,17 @@ class LayoutMinMax extends LayoutUnit {
   SingleUnit getMaxUnit() {
     return maxUnit;
   }
+}
+
+class LayoutDependent extends LayoutUnit {
+    LayoutDependent({
+    this.line,
+    this.multiplicator = 1.0,
+  }) : assert(
+    line != null,
+    multiplicator != null,
+  );
+
+  int line;
+  double multiplicator;
 }

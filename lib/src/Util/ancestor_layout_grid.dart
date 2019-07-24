@@ -39,7 +39,7 @@ class AncestorLayoutGrid extends StatelessWidget {
           //We make sure that the constraints have changed before re-calculating everything wasting resources
           if (_lastConstraints != constraints) {
             //We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
-            updateGrid(constraints);
+            updateGrid(constraints, scrollDirection);
             _lastConstraints = constraints;
           }
 
@@ -100,10 +100,14 @@ class AncestorLayoutGrid extends StatelessWidget {
     );
   }
 
-  void updateGrid(BoxConstraints constraints) {
+  void updateGrid(BoxConstraints constraints, Axis scrollDirection) {
 
-    _col = calculateGridLines(columns, constraints.maxWidth);
-  
-    _rows = calculateGridLines(rows, constraints.maxHeight);    
+    if (scrollDirection == Axis.vertical) {
+      _col = calculateGridLines(columns, constraints.maxWidth);    
+      _rows = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _col);
+    }else if (scrollDirection == Axis.horizontal) {
+      _rows = calculateGridLines(columns, constraints.maxWidth);    
+      _col = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _rows);
+    }
   }
 }
