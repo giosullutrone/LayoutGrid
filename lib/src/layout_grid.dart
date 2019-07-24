@@ -3,7 +3,7 @@ import 'package:flutter_web/material.dart';
 import 'Util/area_creation.dart';
 import 'Util/layout_grid_unit.dart';
 import 'Util/layout_grid_unit_classes.dart';
-import 'Util/main_layout_grid.dart';
+import 'Util/ancestor_layout_grid.dart';
 import 'Util/nested_layout_grid.dart';
 import 'layout_grid_couple.dart';
 
@@ -165,6 +165,7 @@ class _LayoutGridState extends State<LayoutGrid> {
     //else we just use a nestedLayoutGrid without a builder and with width and height specified
     if(widget.isAncestor) {
       return AncestorLayoutGrid(
+        key: UniqueKey(),
         columns: widget.columns,
         rows: widget.rows,
         couples: _couples,
@@ -172,6 +173,7 @@ class _LayoutGridState extends State<LayoutGrid> {
       );
     }else {
       return NestedLayoutGrid(
+        key: UniqueKey(),
         columns: widget.columns,
         rows: widget.rows,
         couples: _couples,

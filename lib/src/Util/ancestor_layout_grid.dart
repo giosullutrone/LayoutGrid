@@ -63,8 +63,8 @@ class AncestorLayoutGrid extends StatelessWidget {
 
                     _top = _rows[couples[index].row0];
                     _left = _col[couples[index].col0];
-                    _height = _rows[couples[index].row1] - _rows[couples[index].row0];
-                    _width = _col[couples[index].col1] - _col[couples[index].col0];
+                    _height = (_rows[couples[index].row1] - _rows[couples[index].row0] >= 0.0) ? _rows[couples[index].row1] - _rows[couples[index].row0] : 0.0;
+                    _width = (_col[couples[index].col1] - _col[couples[index].col0] >= 0.0) ? _col[couples[index].col1] - _col[couples[index].col0] : 0.0;
 
                     //If the user gave a key to the widget then we add or update the Size associated with that key,
                     //making it accessible from elsewhere just by calling the InheritedSizeModel
