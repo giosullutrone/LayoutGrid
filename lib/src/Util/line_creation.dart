@@ -1,88 +1,287 @@
-List<double> calculateGridLines(List<String> list, double space) {
-  List<String> _list = list;
+import 'layout_grid_unit.dart';
+import 'layout_grid_unit_classes.dart';
 
-  ///[list.lenght + 1] becuase we will add the starting line = 0.0 later on
-  List<double> _finalList = List<double>(list.length + 1);
+List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
 
-  ///We get the total number of fractions 
-  int sumOfFractions = getSumOfFractions(list);
+  //We create a list where we register our minMax final values
+  List<double> _listOfMinMaxValues = List<double>.filled(_list.length, 0.0);
 
-  double _value = 0.0;
-  double _freespace = space;
+  //list.lenght + 1 becuase we will add the starting line = 0.0 later on
+  List<double> _finalList = List<double>(_list.length + 1);
 
-  ///To keep track of where we are inside our Stack (It's just an offset)
+  //We get the total number of fractions 
+  int _sumOfFractions = getSumOfFractions(_list);
+
+  //We calculate the free space by pre-calculating the pixels and % sizes 
+  double _freeSpace = getFreeSpace(_list, space);
+
+  //To keep track of where we are inside our Stack (It's just an offset)
   double _currentPosition = 0.0;
 
-  ///We calculate the free space by pre-calculating the pixels and % sizes 
+  //We now check if MinMax have pixels or percentage as MaxUnit and if they have then we check that
+  //they do exceed or are equal to our MinUnit
   for (int _i = 0; _i < _list.length; _i++) {
-    if (list[_i].endsWith("px")) {
-      _value = double.parse(getValueFromString(_list[_i], "px"));
 
-      _freespace -= _value;
-    } else if (list[_i].endsWith("%")) {
-      _value = double.parse(getValueFromString(_list[_i], "%")) / 100 * space;
+    double _maxValue = 0.0;
+    double _minValue = 0.0;
+    LayoutMinMax _layoutMinMax;
 
-      _freespace -= _value;
+    if (_list[_i] is LayoutMinMax) {
+      _layoutMinMax = _list[_i];
+
+      if (_layoutMinMax.getMaxUnit() is LayoutPixel || _layoutMinMax.getMaxUnit() is LayoutPercentage) {
+
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+
+        if(_maxValue < _freeSpace) {
+
+          _listOfMinMaxValues[_i] = _maxValue;
+          _freeSpace -= _maxValue;
+        }else {
+          if(_freeSpace > _minValue) {
+            _listOfMinMaxValues[_i] = _freeSpace;
+            _freeSpace = 0;
+          }else if (_freeSpace < _minValue) {
+            _listOfMinMaxValues[_i] = _minValue;
+            _freeSpace = 0;
+          }
+        }
+      }
     }
   }
 
-  ///We now start creating our list of pixels-converted lines
+  //We now check if MinMax have fraction as MaxUnit and if they have then we check that
+  //they do exceed or are equal to our MinUnit
   for (int _i = 0; _i < _list.length; _i++) {
-    if (list[_i].endsWith("px")) {
-      _value = double.parse(getValueFromString(_list[_i], "px"));
 
-      ///We have to do [_i + 1] 'cause our first place will have to be occupied by the 0.0 or in other words by our starting line (0)
+    double _maxValue = 0.0;
+    double _minValue = 0.0;
+    LayoutFraction _layoutFraction;
+    LayoutMinMax _layoutMinMax;
+
+    if (_list[_i] is LayoutMinMax) {
+      _layoutMinMax = _list[_i];
+
+      if (_layoutMinMax.getMaxUnit() is LayoutFraction) {
+
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+
+        if (_minValue > _maxValue) {
+          _layoutFraction = _layoutMinMax.getMaxUnit();
+          _sumOfFractions -= _layoutFraction.fraction;
+          _freeSpace -= _minValue;
+
+          _listOfMinMaxValues[_i] = _minValue;
+        }else {
+          _listOfMinMaxValues[_i] = _maxValue;
+        }
+      }
+    }
+  }
+
+  //We now create our list of pixels-converted lines
+  for (int _i = 0; _i < _list.length; _i++) {
+
+    double _value = 0.0;
+
+    if(_list[_i] is SingleUnit) {
+      _value = getValueFromLayoutUnit(_list[_i], space, _freeSpace, _sumOfFractions);
+
       _finalList[_i + 1] = _value + _currentPosition;
-
       _currentPosition += _value;
-    } else if (list[_i].endsWith("%")) {
-      _value = double.parse(getValueFromString(_list[_i], "%")) / 100 * space;
-
-      _finalList[_i + 1] = _value + _currentPosition;
-
-      _currentPosition += _value;
-    } else if (list[_i].endsWith("fr")) {
-      _value = double.parse(getValueFromString(_list[_i], "fr")) / sumOfFractions * _freespace;
-
-      _finalList[_i + 1] = _value + _currentPosition;
-
-      _currentPosition += _value;
-    } else if (list[_i] == "auto") {
-      _value = _freespace;
-
-      _finalList[_i + 1] = _value + _currentPosition;
-
-      _currentPosition += _value;
-      _freespace -= _value;
     }else {
-      throw("Wrong unit of measure passed inside the colmuns or rows, did you write it correctly?");
+      _value = _listOfMinMaxValues[_i];
+
+      _finalList[_i + 1] = _value + _currentPosition;
+      _currentPosition += _value;
     }
   }
-
   _finalList[0] = 0.0;
 
   return _finalList;
 }
 
-int getSumOfFractions(List<String> list) {
+List<double> calculateGridLinesWithDependetUnit(List<LayoutUnit> _list, double space, List<double> _listOfDoubles) {
+
+  //We create a list where we register our minMax final values
+  List<double> _listOfMinMaxValues = List<double>.filled(_list.length, 0.0);
+
+  //list.lenght + 1 becuase we will add the starting line = 0.0 later on
+  List<double> _finalList = List<double>(_list.length + 1);
+
+  //We get the total number of fractions 
+  int _sumOfFractions = getSumOfFractions(_list);
+
+  //We calculate the free space by pre-calculating the pixels, % sizes AND also the dependent units
+  double _freeSpace = getFreeSpaceWithDependentUnit(_list, space, _listOfDoubles);
+
+  //To keep track of where we are inside our Stack (It's just an offset)
+  double _currentPosition = 0.0;
+
+  //We now check if MinMax have pixels or percentage as MaxUnit and if they have then we check that
+  //they do exceed or are equal to our MinUnit
+  for (int _i = 0; _i < _list.length; _i++) {
+
+    double _maxValue = 0.0;
+    double _minValue = 0.0;
+    LayoutMinMax _layoutMinMax;
+
+    if (_list[_i] is LayoutMinMax) {
+      _layoutMinMax = _list[_i];
+
+      if (_layoutMinMax.getMaxUnit() is LayoutPixel || _layoutMinMax.getMaxUnit() is LayoutPercentage) {
+
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+
+        if(_maxValue < _freeSpace) {
+
+          _listOfMinMaxValues[_i] = _maxValue;
+          _freeSpace -= _maxValue;
+        }else {
+          if(_freeSpace > _minValue) {
+            _listOfMinMaxValues[_i] = _freeSpace;
+            _freeSpace = 0;
+          }else if (_freeSpace < _minValue) {
+            _listOfMinMaxValues[_i] = _minValue;
+            _freeSpace = 0;
+          }
+        }
+      }
+    }
+  }
+
+  //We now check if MinMax have fraction as MaxUnit and if they have then we check that
+  //they do exceed or are equal to our MinUnit
+  for (int _i = 0; _i < _list.length; _i++) {
+
+    double _maxValue = 0.0;
+    double _minValue = 0.0;
+    LayoutFraction _layoutFraction;
+    LayoutMinMax _layoutMinMax;
+
+    if (_list[_i] is LayoutMinMax) {
+      _layoutMinMax = _list[_i];
+
+      if (_layoutMinMax.getMaxUnit() is LayoutFraction) {
+
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+
+        if (_minValue > _maxValue) {
+          _layoutFraction = _layoutMinMax.getMaxUnit();
+          _sumOfFractions -= _layoutFraction.fraction;
+          _freeSpace -= _minValue;
+
+          _listOfMinMaxValues[_i] = _minValue;
+        }else {
+          _listOfMinMaxValues[_i] = _maxValue;
+        }
+      }
+    }
+  }
+
+  //We now create our list of pixels-converted lines
+  for (int _i = 0; _i < _list.length; _i++) {
+
+    double _value = 0.0;
+
+    if(_list[_i] is SingleUnit) {
+      _value = getValueFromLayoutUnit(_list[_i], space, _freeSpace, _sumOfFractions);
+
+      _finalList[_i + 1] = _value + _currentPosition;
+      _currentPosition += _value;
+    }else if (_list[_i] is LayoutDependent) {
+      _value = getDependentLineValue(_list[_i], _listOfDoubles);
+
+      _finalList[_i + 1] = _value + _currentPosition;
+      _currentPosition += _value;
+    } else {
+      _value = _listOfMinMaxValues[_i];
+
+      _finalList[_i + 1] = _value + _currentPosition;
+      _currentPosition += _value;
+    }
+  }
+  _finalList[0] = 0.0;
+
+  return _finalList;
+}
+
+double getValueFromLayoutUnit(LayoutUnit layoutUnit, double space,double freeSpace, int sumOfFractions) {
+  double _value = 0.0;
+
+  if (layoutUnit is LayoutPixel) {
+    
+    _value = layoutUnit.pixels;
+  }else if (layoutUnit is LayoutPercentage) {
+
+    _value = layoutUnit.getValue(space);
+  }else if (layoutUnit is LayoutFraction) {
+
+    _value = layoutUnit.getValue(sumOfFractions, freeSpace);
+  }
+
+  return _value;
+}
+
+double getFreeSpace(List<LayoutUnit> listToGetSpaceFrom, double space) {
+  double _freeSpace = space;
+
+  for (int _i = 0; _i < listToGetSpaceFrom.length; _i++) {
+    if (listToGetSpaceFrom[_i] is LayoutPixel || listToGetSpaceFrom[_i] is LayoutPercentage) {
+
+      _freeSpace -= getValueFromLayoutUnit(listToGetSpaceFrom[_i], space, 0, 0);
+    }
+  }
+
+  return _freeSpace;
+}
+
+double getFreeSpaceWithDependentUnit(List<LayoutUnit> listToGetSpaceFrom, double space, List<double> _listOfDoubles) {
+  double _freeSpace = space;
+
+  for (int _i = 0; _i < listToGetSpaceFrom.length; _i++) {
+    if (listToGetSpaceFrom[_i] is LayoutPixel || listToGetSpaceFrom[_i] is LayoutPercentage) {
+
+      _freeSpace -= getValueFromLayoutUnit(listToGetSpaceFrom[_i], space, 0, 0);
+    }else if (listToGetSpaceFrom[_i] is LayoutDependent) {
+      
+      _freeSpace -= getDependentLineValue(listToGetSpaceFrom[_i], _listOfDoubles);
+    }
+  }
+
+  return _freeSpace;
+}
+
+double getDependentLineValue(LayoutDependent _layoutDependent, List<double> _listOfDoubles) {
+  double _value = 0.0;
+  
+  _value = _listOfDoubles[_layoutDependent.line] * _layoutDependent.multiplicator;
+
+  return _value;
+}
+
+int getSumOfFractions(List<LayoutUnit> listToSumFunctionOf) {
+  LayoutFraction _layoutFraction;
+  LayoutMinMax _layoutMinMax;
   int _sumOfFractions = 0;
 
-  for (int _i = 0; _i < list.length; _i++) {
-    if (list[_i].endsWith("fr")) {
-      _sumOfFractions += int.parse(getValueFromString(list[_i], "fr"));
+  for (int _i = 0; _i < listToSumFunctionOf.length; _i++) {
+    if (listToSumFunctionOf[_i] is LayoutFraction) {
+      _layoutFraction = listToSumFunctionOf[_i];
+      _sumOfFractions += _layoutFraction.fraction;
+    }else if (listToSumFunctionOf[_i] is LayoutMinMax) {
+      _layoutMinMax = listToSumFunctionOf[_i];
+
+      if (_layoutMinMax.getMaxUnit() is LayoutFraction) {
+        _layoutFraction = _layoutMinMax.getMaxUnit();
+        _sumOfFractions += _layoutFraction.fraction;
+      } 
     }
   }
 
   return _sumOfFractions;
-}
-
-///We remove blank spaces and remove the suffix from our actual values
-String getValueFromString(String string, String subStringToRemove) {
-  String _final;
-
-  _final = string
-      .replaceAll(RegExp(r' '), '')
-      .substring(0, string.length - subStringToRemove.length);
-
-  return _final;
 }

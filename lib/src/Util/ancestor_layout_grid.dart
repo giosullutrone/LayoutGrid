@@ -4,6 +4,8 @@ import '../layout_grid_couple.dart';
 import 'inherited_size_model.dart';
 import 'custom_scroll_behavior.dart';
 import 'layout_grid_child.dart';
+import 'layout_grid_unit.dart';
+import 'layout_grid_unit_classes.dart';
 import 'line_creation.dart';
 
 class AncestorLayoutGrid extends StatelessWidget {
@@ -19,7 +21,7 @@ class AncestorLayoutGrid extends StatelessWidget {
        assert(rows != null),
        super(key: key);
 
-  final List<String> columns, rows;
+  final List<LayoutUnit> columns, rows;
   final List<LayoutGridCouple> couples;
   final Axis scrollDirection;
 
@@ -37,7 +39,7 @@ class AncestorLayoutGrid extends StatelessWidget {
           //We make sure that the constraints have changed before re-calculating everything wasting resources
           if (_lastConstraints != constraints) {
             //We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
-            updateGrid(constraints);
+            updateGrid(constraints, scrollDirection);
             _lastConstraints = constraints;
           }
 
@@ -61,8 +63,8 @@ class AncestorLayoutGrid extends StatelessWidget {
 
                     _top = _rows[couples[index].row0];
                     _left = _col[couples[index].col0];
-                    _height = _rows[couples[index].row1] - _rows[couples[index].row0];
-                    _width = _col[couples[index].col1] - _col[couples[index].col0];
+                    _height = (_rows[couples[index].row1] - _rows[couples[index].row0] >= 0.0) ? _rows[couples[index].row1] - _rows[couples[index].row0] : 0.0;
+                    _width = (_col[couples[index].col1] - _col[couples[index].col0] >= 0.0) ? _col[couples[index].col1] - _col[couples[index].col0] : 0.0;
 
                     //If the user gave a key to the widget then we add or update the Size associated with that key,
                     //making it accessible from elsewhere just by calling the InheritedSizeModel
@@ -98,10 +100,14 @@ class AncestorLayoutGrid extends StatelessWidget {
     );
   }
 
-  void updateGrid(BoxConstraints constraints) {
+  void updateGrid(BoxConstraints constraints, Axis scrollDirection) {
 
-    _col = calculateGridLines(columns, constraints.maxWidth);
-  
-    _rows = calculateGridLines(rows, constraints.maxHeight);    
+    if (scrollDirection == Axis.vertical) {
+      _col = calculateGridLines(columns, constraints.maxWidth);    
+      _rows = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _col);
+    }else if (scrollDirection == Axis.horizontal) {
+      _rows = calculateGridLines(columns, constraints.maxWidth);    
+      _col = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _rows);
+    }
   }
 }
