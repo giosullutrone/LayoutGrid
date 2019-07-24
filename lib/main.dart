@@ -47,11 +47,12 @@ class TestContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: "centerSize");
+    final String key = "centerSize";
+    final InheritedSizeModel sizeModel = InheritedSizeModel.of(context, sizeKey: key);
 
     return Container(
-      height: sizeModel.sizeMap["centerSize"].height,
-      width: sizeModel.sizeMap["centerSize"].width,
+      height: sizeModel.getHeight(key),
+      width: sizeModel.getWidth(key),
       decoration: BoxDecoration(
         color: color,
       ),

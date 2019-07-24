@@ -7,7 +7,7 @@ import 'package:flutter_web/material.dart';
 ///that tells the [LayoutGrid] to store the Size inside the sizeMap for later use
 class InheritedSizeModel extends InheritedModel<String> {
   
-  final Map<String, Size>  sizeMap = Map<String, Size>();
+  final Map<String, Size>  _sizeMap = Map<String, Size>();
   
   InheritedSizeModel({
     @required Widget child,
@@ -16,20 +16,27 @@ class InheritedSizeModel extends InheritedModel<String> {
   @override
   bool updateShouldNotify(InheritedSizeModel old) {
 
-    return (sizeMap != old.sizeMap);
+    return (_sizeMap != old._sizeMap);
   }
 
   @override
   bool updateShouldNotifyDependent(InheritedSizeModel old, Set<String> dependencies) {
 
-    return (sizeMap.containsKey(dependencies)) && (sizeMap[dependencies] != old.sizeMap[dependencies]);
+    return (_sizeMap.containsKey(dependencies)) && (_sizeMap[dependencies] != old._sizeMap[dependencies]);
   }
   
   static InheritedSizeModel of(BuildContext context, {String sizeKey}) {
     return InheritedModel.inheritFrom<InheritedSizeModel>(context, aspect: sizeKey);
   }
 
-  void updateSize(String key, Size size){
-    sizeMap[key] = size;
+  void updateSize(String sizeKey, Size size){
+    _sizeMap[sizeKey] = size;
+  }
+
+  double getWidth(String sizeKey) {
+    return _sizeMap[sizeKey].width;
+  }
+  double getHeight(String sizeKey) {
+    return _sizeMap[sizeKey].height;
   }
 }
