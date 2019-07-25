@@ -17,6 +17,7 @@ class LayoutGridCouple {
     this.row1 = -1,
     this.boxFit = BoxFit.none,
     this.alignment = const Alignment(0.0, 0.0),
+    this.offset = const Offset(0.0,0.0),
     this.sizeKey}
   );
 
@@ -36,6 +37,9 @@ class LayoutGridCouple {
   final BoxFit boxFit;
 
   final Alignment alignment;
+
+  ///Offset from top-left point of area
+  final Offset offset;
 
   ///Specify a String to save the dimensions of the linked [widget] inside the [InheritedSizeModel]
   final String sizeKey;

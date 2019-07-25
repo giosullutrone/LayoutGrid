@@ -81,8 +81,8 @@ class AncestorLayoutGrid extends StatelessWidget {
                     return LayoutGridChild(
                       key: UniqueKey(),
 
-                      top: _top,
-                      left: _left,
+                      top: _top + couples[index].offset.dy,
+                      left: _left + couples[index].offset.dx,
 
                       height: _height,
                       width: _width,
