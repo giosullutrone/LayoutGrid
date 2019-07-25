@@ -1,7 +1,6 @@
 import 'package:flutter_web/material.dart';
 
 import 'Util/area_creation.dart';
-import 'Util/layout_grid_unit.dart';
 import 'Util/layout_grid_unit_classes.dart';
 import 'Util/ancestor_layout_grid.dart';
 import 'Util/nested_layout_grid.dart';
@@ -26,7 +25,7 @@ import 'layout_grid_couple.dart';
 ///           2  |----------------------------|
 ///              0     1               2      3
 /// 
-///   * You can assign a widget to the area "center" by using a [LaoyoutGridCouple] and passing the argument name: "center"
+///   * You can assign a widget to the area "center" by using a [LayoutGridCouple] and passing the argument name: "center"
 ///
 ///   
 ///   * Or you can pass col0: 1, col1: 3, row0: 0, row1: 1 
@@ -69,8 +68,10 @@ class LayoutGrid extends StatefulWidget {
   }):super(key: key);
 
   /// Every element of the list is a line that is defined by a unit of measure that tells the widget where to place the subdivisory line
+  /// 
+  /// ex.
   ///
-  /// ex.      col:  1fr        2fr        1fr    rows:
+  ///          col:  1fr        2fr        1fr    rows:
   ///           0  |-----|---------------|------| 
   ///              |     |               |      | 50%
   ///              | top |               |      |
@@ -80,25 +81,24 @@ class LayoutGrid extends StatefulWidget {
   ///           2  |----------------------------|
   ///              0     1               2      3
   /// 
+  /// 
   /// [columns] = ["1fr", "2fr", "1fr"]
   /// [rows] = ["50%", "50%"]
   ///
   /// Unit of measure avaible:
   ///
-  /// * "px" == simple pixel
+  /// * LayoutPixel == simple pixel
   /// 
   ///
-  /// * "%" == percentage of Stack size (if columns => percentage of width, else if rows => percentage of height)
+  /// * LayoutPercentage == percentage of Stack size (if columns => percentage of width, else if rows => percentage of height)
   /// 
   ///
-  /// * "fr" == fraction of free space (The widget divides the free space between the different fractions .
+  /// * LayoutFraction == fraction of free space (The widget divides the free space between the different fractions
   /// 
-  ///   ex. "1fr", "2fr" => It will divide the space in (1 + 2) parts and then assign 1 part to the first column and 2 to the second)
+  ///   ex. LayoutFraction(fraction: 1), LayoutFraction(fraction: 2) => It will divide the space in (1 + 2) parts and then assign 1 part to the first column and 2 to the second)
   /// 
   /// 
-  /// * "auto" == remaining free space 
-  ///   
-  ///   (Don't use auto and fr at the same time... "fr"s will divide the avaible space leaving nothing to the "auto")
+  /// * LayoutDependent == Unit that depends on another line of the opposite type(Ex. (Col => row) depending on scrollDirection), usable only in Ancestor LayuotGrid
   final List<LayoutUnit> columns, rows;
 
   ///[LayoutGridCouple] will let you link a widget to an area by [name] or by [col0],[col1],[row0],[row1]
@@ -132,7 +132,7 @@ class LayoutGrid extends StatefulWidget {
 
   final Axis scrollDirection;
 
-  ///[true] if it the ancestor stack which will manage all draw calls and the creation and manipulation of the [InheritedSizeModel]
+  ///[true] if the stack has to manage all draw calls and the creation and manipulation of the [InheritedSizeModel]
   final bool isAncestor;
 
   //Used to store the manipulated and ready-to-use couples

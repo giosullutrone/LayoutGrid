@@ -29,13 +29,16 @@ class InheritedSizeModel extends InheritedModel<String> {
     return InheritedModel.inheritFrom<InheritedSizeModel>(context, aspect: sizeKey);
   }
 
+  //Used to store or update the size inside the _sizeMap of the InheritedSizeModel
   void updateSize(String sizeKey, Size size){
     _sizeMap[sizeKey] = size;
   }
 
+  ///Used to get the width associated to the sizeKey provided
   double getWidth(String sizeKey) {
     return _sizeMap[sizeKey].width;
   }
+  ///Used to the height associated to the sizeKey provided
   double getHeight(String sizeKey) {
     return _sizeMap[sizeKey].height;
   }
