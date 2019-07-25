@@ -1,5 +1,3 @@
-import 'package:flutter_web/material.dart';
-
 import '../layout_grid_couple.dart';
 
 List<LayoutGridCouple> getPositionedGridCoupleList(List<List<String>> areas, List<LayoutGridCouple> couples) {

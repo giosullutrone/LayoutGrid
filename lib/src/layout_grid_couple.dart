@@ -20,10 +20,23 @@ class LayoutGridCouple {
     this.sizeKey}
   );
 
+  ///[widget] to link the area with
   final Widget widget;
+
+  ///Cols and rows of the area to link the [widget] with
   int col0, col1, row0, row1;
+
+  ///Name of the area to link the widget with
   final String name;
+
+  ///Specify [BoxFit] if you want to, for example, fill the space with the [widget]
+  ///
+  ///This may lead to distortion of the [widget], to prevent it pass a sizeKey and inside the [widget]
+  ///use the width and height provided by the [InheritedSizeModel]
   final BoxFit boxFit;
+
   final Alignment alignment;
+
+  ///Specify a String to save the dimensions of the linked [widget] inside the [InheritedSizeModel]
   final String sizeKey;
 }

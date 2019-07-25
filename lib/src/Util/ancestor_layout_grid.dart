@@ -2,9 +2,8 @@ import 'package:flutter_web/material.dart';
 
 import '../layout_grid_couple.dart';
 import 'inherited_size_model.dart';
-import 'custom_scroll_behavior.dart';
+import 'custom_layout_grid_scroll_behavior.dart';
 import 'layout_grid_child.dart';
-import 'layout_grid_unit.dart';
 import 'layout_grid_unit_classes.dart';
 import 'line_creation.dart';
 
@@ -46,12 +45,14 @@ class AncestorLayoutGrid extends StatelessWidget {
           return ScrollConfiguration(
 
             //We use ScrollConfiguration to remove the list glow that is used manly on mobile devices
-            behavior: CustomScrollBehavior(),
+            behavior: CustomLayoutGridScrollBehavior(),
 
             child: ListView(scrollDirection: scrollDirection, children: <Widget>[
 
               Container(
 
+                //We get height and width from the last line of rows and cols so that we can expand the stack over 
+                //the page area, allowing the scrolling of the stack
                 height: _rows.last,
                 width: _col.last,
 
@@ -60,6 +61,7 @@ class AncestorLayoutGrid extends StatelessWidget {
                   fit: StackFit.expand,
 
                   children: List<Widget>.generate(couples.length, (int index) {
+
 
                     _top = _rows[couples[index].row0];
                     _left = _col[couples[index].col0];
@@ -72,8 +74,8 @@ class AncestorLayoutGrid extends StatelessWidget {
                       InheritedSizeModel.of(context).updateSize(couples[index].sizeKey, Size(_width,_height));
                     }
 
-                    //We pass top and left to the positioned widget inside of the LayoutGridChild,
-                    //The height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
+                    //We pass top and left to the positioned widget inside of the LayoutGridChild
+                    //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
                     //
                     //We assign an UniqueKey so that flutter is forced to update the widget
                     return LayoutGridChild(
@@ -101,11 +103,20 @@ class AncestorLayoutGrid extends StatelessWidget {
   }
 
   void updateGrid(BoxConstraints constraints, Axis scrollDirection) {
-
+    
+    //Dependent Unit depends on some other gridLine of the opposite type (ex. rows => cols) depending on the scrolling passed
+    //
+    //The tought process goes like this, if we have a vertical scrolling then the width of the stack will be fixed to the width of the page,
+    //the height instead can go up to infinity, that means that a minmax will "only" work for the width of the stack where the freeSpace is relevant
+    //therefore we make the dependent unit accessible to the rows so that the user can access the minmax of the height
+    //
+    //Used for example to create Square areas
     if (scrollDirection == Axis.vertical) {
+
       _col = calculateGridLines(columns, constraints.maxWidth);    
       _rows = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _col);
     }else if (scrollDirection == Axis.horizontal) {
+
       _rows = calculateGridLines(columns, constraints.maxWidth);    
       _col = calculateGridLinesWithDependetUnit(rows, constraints.maxHeight, _rows);
     }

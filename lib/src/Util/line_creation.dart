@@ -1,6 +1,7 @@
 import 'layout_grid_unit.dart';
 import 'layout_grid_unit_classes.dart';
 
+//Used to convert LayoutUnits into their corresponding pixels sizes
 List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
 
   //We create a list where we register our minMax final values
@@ -103,12 +104,14 @@ List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
   return _finalList;
 }
 
+//Same use of the previous function, but in this case we provide a list of already calculated lines
+//and we access them to calculate the Dependent Units
 List<double> calculateGridLinesWithDependetUnit(List<LayoutUnit> _list, double space, List<double> _listOfDoubles) {
 
   //We create a list where we register our minMax final values
   List<double> _listOfMinMaxValues = List<double>.filled(_list.length, 0.0);
 
-  //list.lenght + 1 becuase we will add the starting line = 0.0 later on
+  //list.lenght + 1 because we will add the starting line = 0.0 later on
   List<double> _finalList = List<double>(_list.length + 1);
 
   //We get the total number of fractions 
@@ -142,9 +145,11 @@ List<double> calculateGridLinesWithDependetUnit(List<LayoutUnit> _list, double s
           _freeSpace -= _maxValue;
         }else {
           if(_freeSpace > _minValue) {
+
             _listOfMinMaxValues[_i] = _freeSpace;
             _freeSpace = 0;
           }else if (_freeSpace < _minValue) {
+
             _listOfMinMaxValues[_i] = _minValue;
             _freeSpace = 0;
           }
@@ -171,12 +176,14 @@ List<double> calculateGridLinesWithDependetUnit(List<LayoutUnit> _list, double s
         _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
 
         if (_minValue > _maxValue) {
+
           _layoutFraction = _layoutMinMax.getMaxUnit();
           _sumOfFractions -= _layoutFraction.fraction;
           _freeSpace -= _minValue;
 
           _listOfMinMaxValues[_i] = _minValue;
         }else {
+
           _listOfMinMaxValues[_i] = _maxValue;
         }
       }
