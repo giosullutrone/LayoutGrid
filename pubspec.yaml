@@ -1,8 +1,8 @@
 name: layout_grid
 description: A CSS-Grid like package for Flutter_web.
 version: 0.0.1
-author: 
-homepage:
+author: Giovanni Sullutrone
+homepage: https://github.com/SirCleric/LayoutGrid
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
