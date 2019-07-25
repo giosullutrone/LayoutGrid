@@ -1,1 +1,0 @@
-{"isEntrypoint":true,"deps":["flutter_web_ui|lib/ui.dart","layout_grid_for_web|lib/main.dart"],"parts":[],"conditionalDeps":[],"sdkDeps":[],"hasMain":true}
