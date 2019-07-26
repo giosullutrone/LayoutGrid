@@ -1,12 +1,11 @@
 import 'layout_grid_unit_classes.dart';
 
-class LayoutPixel extends FreeSpaceIndependent{
-
+class LayoutPixel extends FreeSpaceIndependent {
   LayoutPixel({
     this.pixels = 0.0,
-  }) : assert (
-    pixels != null,
-  );
+  }) : assert(
+          pixels != null,
+        );
 
   double pixels;
 
@@ -15,13 +14,12 @@ class LayoutPixel extends FreeSpaceIndependent{
   }
 }
 
-class LayoutPercentage extends FreeSpaceIndependent{
-
+class LayoutPercentage extends FreeSpaceIndependent {
   LayoutPercentage({
     this.percentage = 0.0,
   }) : assert(
-    percentage >= 0.0,
-  );
+          percentage >= 0.0,
+        );
 
   double percentage;
 
@@ -30,13 +28,12 @@ class LayoutPercentage extends FreeSpaceIndependent{
   }
 }
 
-class LayoutFraction extends SingleUnit{
-
+class LayoutFraction extends SingleUnit {
   LayoutFraction({
     this.fraction = 0,
   }) : assert(
-    fraction != null,
-  );
+          fraction != null,
+        );
 
   int fraction;
 
@@ -46,14 +43,13 @@ class LayoutFraction extends SingleUnit{
 }
 
 class LayoutMinMax extends OtherLayoutIndependent {
-
   LayoutMinMax({
     this.minUnit,
     this.maxUnit,
   }) : assert(
-    minUnit != null,
-    maxUnit != null,
-  );
+          minUnit != null,
+          maxUnit != null,
+        );
 
   FreeSpaceIndependent minUnit;
   SingleUnit maxUnit;
@@ -68,13 +64,13 @@ class LayoutMinMax extends OtherLayoutIndependent {
 }
 
 class LayoutDependent extends OtherLayoutDependent {
-    LayoutDependent({
+  LayoutDependent({
     this.line,
     this.multiplicator = 1.0,
   }) : assert(
-    line != null,
-    multiplicator != null,
-  );
+          line != null,
+          multiplicator != null,
+        );
 
   int line;
   double multiplicator;
