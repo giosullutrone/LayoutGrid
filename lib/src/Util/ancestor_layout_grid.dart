@@ -45,60 +45,60 @@ class AncestorLayoutGrid extends StatelessWidget {
             //We use ScrollConfiguration to remove the list glow that is used manly on mobile devices
             behavior: CustomLayoutGridScrollBehavior(),
 
-            child:
-                ListView(
-                  controller: (scrollController != null) ? scrollController : null,
-                  scrollDirection: scrollDirection,
-                  children: <Widget>[
-              Container(
-                //We get height and width from the last line of rows and cols so that we can expand the stack over
-                //the page area, allowing the scrolling of the stack
-                height: _rows.last,
-                width: _col.last,
+            child: ListView(
+                controller:
+                    (scrollController != null) ? scrollController : null,
+                scrollDirection: scrollDirection,
+                children: <Widget>[
+                  Container(
+                    //We get height and width from the last line of rows and cols so that we can expand the stack over
+                    //the page area, allowing the scrolling of the stack
+                    height: _rows.last,
+                    width: _col.last,
 
-                child: Stack(
-                    fit: StackFit.expand,
-                    children:
-                        List<Widget>.generate(couples.length, (int index) {
-                      _top = _rows[couples[index].row0];
-                      _left = _col[couples[index].col0];
-                      _height = (_rows[couples[index].row1] -
-                                  _rows[couples[index].row0] >=
-                              0.0)
-                          ? _rows[couples[index].row1] -
-                              _rows[couples[index].row0]
-                          : 0.0;
-                      _width = (_col[couples[index].col1] -
-                                  _col[couples[index].col0] >=
-                              0.0)
-                          ? _col[couples[index].col1] -
-                              _col[couples[index].col0]
-                          : 0.0;
+                    child: Stack(
+                        fit: StackFit.expand,
+                        children:
+                            List<Widget>.generate(couples.length, (int index) {
+                          _top = _rows[couples[index].row0];
+                          _left = _col[couples[index].col0];
+                          _height = (_rows[couples[index].row1] -
+                                      _rows[couples[index].row0] >=
+                                  0.0)
+                              ? _rows[couples[index].row1] -
+                                  _rows[couples[index].row0]
+                              : 0.0;
+                          _width = (_col[couples[index].col1] -
+                                      _col[couples[index].col0] >=
+                                  0.0)
+                              ? _col[couples[index].col1] -
+                                  _col[couples[index].col0]
+                              : 0.0;
 
-                      //If the user gave a key to the widget then we add or update the Size associated with that key,
-                      //making it accessible from elsewhere just by calling the InheritedSizeModel
-                      if (couples[index].sizeKey != null) {
-                        InheritedSizeModel.of(context).updateSize(
-                            couples[index].sizeKey, Size(_width, _height));
-                      }
+                          //If the user gave a key to the widget then we add or update the Size associated with that key,
+                          //making it accessible from elsewhere just by calling the InheritedSizeModel
+                          if (couples[index].sizeKey != null) {
+                            InheritedSizeModel.of(context).updateSize(
+                                couples[index].sizeKey, Size(_width, _height));
+                          }
 
-                      //We pass top and left to the positioned widget inside of the LayoutGridChild
-                      //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
-                      //
-                      //We assign an UniqueKey so that flutter is forced to update the widget
-                      return LayoutGridChild(
-                        key: UniqueKey(),
-                        top: _top + couples[index].offset.dy,
-                        left: _left + couples[index].offset.dx,
-                        height: _height,
-                        width: _width,
-                        widget: couples[index].widget,
-                        boxFit: couples[index].boxFit,
-                        alignment: couples[index].alignment,
-                      );
-                    })),
-              ),
-            ]),
+                          //We pass top and left to the positioned widget inside of the LayoutGridChild
+                          //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
+                          //
+                          //We assign an UniqueKey so that flutter is forced to update the widget
+                          return LayoutGridChild(
+                            key: UniqueKey(),
+                            top: _top + couples[index].offset.dy,
+                            left: _left + couples[index].offset.dx,
+                            height: _height,
+                            width: _width,
+                            widget: couples[index].widget,
+                            boxFit: couples[index].boxFit,
+                            alignment: couples[index].alignment,
+                          );
+                        })),
+                  ),
+                ]),
           );
         },
       ),
