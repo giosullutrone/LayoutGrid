@@ -1,9 +1,11 @@
 import 'package:flutter_web/material.dart';
 
 import 'Util/area_creation.dart';
+import 'Util/custom_layout_grid_scroll_behavior.dart';
+import 'Util/inherited_size_model.dart';
+import 'Util/layout_grid_child.dart';
 import 'Util/layout_grid_unit_classes.dart';
-import 'Util/ancestor_layout_grid.dart';
-import 'Util/nested_layout_grid.dart';
+import 'Util/line_creation.dart';
 import 'layout_grid_couple.dart';
 
 ///A Stack widget that lets you divide its space in areas and link them to widgets.
@@ -59,11 +61,11 @@ class LayoutGrid extends StatefulWidget {
     @required this.rows,
     @required this.couples,
     this.areas,
-    this.width,
-    this.height,
+    @required this.width,
+    @required this.height,
     this.scrollDirection = Axis.vertical,
     this.scrollController,
-    this.isAncestor = false,
+    this.sizeModel,
     Key key,
   }) : super(key: key);
 
@@ -133,8 +135,7 @@ class LayoutGrid extends StatefulWidget {
   final Axis scrollDirection;
   final ScrollController scrollController;
 
-  ///[true] if the stack has to manage all draw calls and the creation and manipulation of the [InheritedSizeModel]
-  final bool isAncestor;
+  final InheritedSizeModel sizeModel;
 
   //Used to store the manipulated and ready-to-use couples
   List<LayoutGridCouple> calculatedCouples;
@@ -143,7 +144,10 @@ class LayoutGrid extends StatefulWidget {
 }
 
 class _LayoutGridState extends State<LayoutGrid> {
+
   List<LayoutGridCouple> _couples;
+  List<double> _col, _rows;
+  double _top, _left, _width, _height;
 
   @override
   void initState() {
@@ -153,34 +157,84 @@ class _LayoutGridState extends State<LayoutGrid> {
     //to couples with cols and rows specified
     //
     //We only do the calculation once
-    if (widget.calculatedCouples == null)
-      widget.calculatedCouples =
-          getPositionedGridCoupleList(widget.areas, widget.couples);
+    if (widget.calculatedCouples == null) widget.calculatedCouples = getPositionedGridCoupleList(widget.areas, widget.couples);
+
     _couples = widget.calculatedCouples;
   }
 
   @override
   Widget build(BuildContext context) {
-    //if isAncestor then we return a LayoutGrid with a SizeModel and a LayoutBuilder to update sizes and redraw its children
-    //else we just use a nestedLayoutGrid without a builder and with width and height specified
-    if (widget.isAncestor) {
-      return AncestorLayoutGrid(
-        key: UniqueKey(),
-        columns: widget.columns,
-        rows: widget.rows,
-        couples: _couples,
+
+    //We now convert our rows and columns to pixels (relatively to our constraints or ,in case specified, width and height)
+    updateGrid(widget.width,widget.height, widget.scrollDirection);
+
+    return ScrollConfiguration(
+      //We use ScrollConfiguration to remove the list glow that is used manly on mobile devices
+      behavior: CustomLayoutGridScrollBehavior(),
+
+      child: ListView(
+        controller: widget.scrollController,
         scrollDirection: widget.scrollDirection,
-        scrollController: widget.scrollController,
-      );
-    } else {
-      return NestedLayoutGrid(
-        key: UniqueKey(),
-        columns: widget.columns,
-        rows: widget.rows,
-        couples: _couples,
-        height: widget.height,
-        width: widget.width,
-      );
+
+        children: <Widget>[
+          Container(
+            //We get height and width from the last line of rows and cols so that we can expand the stack over
+            //the page area, allowing the scrolling of the stack
+            height: widget.height,
+            width: widget.width,
+
+            child: Stack(
+              fit: StackFit.expand,
+              children: List<Widget>.generate(_couples.length, (int index) {
+
+                _top = _rows[_couples[index].row0];
+                _left = _col[_couples[index].col0];
+                _height = (_rows[_couples[index].row1] - _rows[_couples[index].row0] >= 0.0) ? _rows[_couples[index].row1] - _rows[_couples[index].row0] : 0.0;
+                _width = (_col[_couples[index].col1] - _col[_couples[index].col0] >= 0.0) ? _col[_couples[index].col1] - _col[_couples[index].col0] : 0.0;
+
+                //If the user gave a key to the widget then we add or update the Size associated with that key,
+                //making it accessible from elsewhere just by calling the InheritedSizeModel
+                if (_couples[index].sizeKey != null) {
+                  widget.sizeModel.updateSize(_couples[index].sizeKey, Size(_width, _height));
+                }
+
+                //We pass top and left to the positioned widget inside of the LayoutGridChild
+                //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
+                //
+                //We assign an UniqueKey so that flutter is forced to update the widget
+                return LayoutGridChild(
+                  key: UniqueKey(),
+                  top: _top + _couples[index].offset.dy,
+                  left: _left + _couples[index].offset.dx,
+                  height: _height,
+                  width: _width,
+                  widget: _couples[index].widget,
+                  boxFit: _couples[index].boxFit,
+                  alignment: _couples[index].alignment,
+                );
+              }
+            )),
+          ),
+        ]
+      ),
+    );
+  }
+
+  void updateGrid(double width, double height, Axis scrollDirection) {
+
+    //Dependent Unit depends on some other gridLine of the opposite type (ex. rows => cols) depending on the scrolling passed
+    //
+    //The tought process goes like this, if we have a vertical scrolling then the width of the stack will be fixed to the width of the page,
+    //the height instead can go up to infinity, that means that a minmax will "only" work for the width of the stack where the freeSpace is relevant
+    //therefore we make the dependent unit accessible to the rows so that the user can access the minmax of the height
+    //
+    //Used for example to create Square areas
+    if (scrollDirection == Axis.vertical) {
+      _col = calculateGridLines(widget.columns, width);
+      _rows = calculateGridLinesWithDependetUnit(widget.rows, height, _col);
+    } else if (scrollDirection == Axis.horizontal) {
+      _rows = calculateGridLines(widget.columns, width);
+      _col = calculateGridLinesWithDependetUnit(widget.rows, widget.height, _rows);
     }
   }
 }
