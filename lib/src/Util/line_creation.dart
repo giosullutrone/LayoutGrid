@@ -18,6 +18,11 @@ List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
   //To keep track of where we are inside our Stack (It's just an offset)
   double _currentPosition = 0.0;
 
+  //We create a copy of the original free space
+  double _copyOfFreeSpace = _freeSpace;
+  double _spaceOccupiedByMinMaxFractions = 0.0;
+  bool hasToReCalculate = false;
+
   //We now check if MinMax have pixels or percentage as MaxUnit and if they have then we check that
   //they do exceed or are equal to our MinUnit
   for (int _i = 0; _i < _list.length; _i++) {
@@ -63,19 +68,60 @@ List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
       _layoutMinMax = _list[_i];
 
       if (_layoutMinMax.getMaxUnit() is LayoutFraction) {
-        _maxValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
-        _minValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
 
         if (_minValue > _maxValue) {
           _layoutFraction = _layoutMinMax.getMaxUnit();
           _sumOfFractions -= _layoutFraction.fraction;
           _freeSpace -= _minValue;
 
+          _spaceOccupiedByMinMaxFractions += _minValue;
           _listOfMinMaxValues[_i] = _minValue;
+
+          hasToReCalculate = true;
         } else {
+
+          _spaceOccupiedByMinMaxFractions += _maxValue;
+
           _listOfMinMaxValues[_i] = _maxValue;
+        }
+      }
+    }
+  }
+
+  //If hasToReCalculate then it means that some MinMax fraction didn't have enought space and had to use the minUnit
+  //That means that the space avaible to the other MinMax with Pixels and Percentages just shrinked and we have to
+  //Calculate them again
+  if (hasToReCalculate) {
+
+    //We redo our calculations with our space occupied by MinMax fractions removed
+    _copyOfFreeSpace -= _spaceOccupiedByMinMaxFractions;
+
+    for (int _i = 0; _i < _list.length; _i++) {
+      double _maxValue = 0.0;
+      double _minValue = 0.0;
+      LayoutMinMax _layoutMinMax;
+
+      if (_list[_i] is LayoutMinMax) {
+        _layoutMinMax = _list[_i];
+
+        if (_layoutMinMax.getMaxUnit() is LayoutPixel || _layoutMinMax.getMaxUnit() is LayoutPercentage) {
+          _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _copyOfFreeSpace, _sumOfFractions);
+          _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _copyOfFreeSpace, _sumOfFractions);
+
+          if (_maxValue < _copyOfFreeSpace) {
+            _listOfMinMaxValues[_i] = _maxValue;
+            _copyOfFreeSpace -= _maxValue;
+          } else {
+            if (_copyOfFreeSpace > _minValue) {
+              _listOfMinMaxValues[_i] = _copyOfFreeSpace;
+              _copyOfFreeSpace = 0;
+            } else if (_copyOfFreeSpace <= _minValue) {
+              _listOfMinMaxValues[_i] = _minValue;
+              _copyOfFreeSpace = 0;
+            }
+          }
         }
       }
     }
@@ -86,8 +132,7 @@ List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
     double _value = 0.0;
 
     if (_list[_i] is SingleUnit) {
-      _value =
-          getValueFromLayoutUnit(_list[_i], space, _freeSpace, _sumOfFractions);
+      _value = getValueFromLayoutUnit(_list[_i], space, _freeSpace, _sumOfFractions);
 
       _finalList[_i + 1] = _value + _currentPosition;
       _currentPosition += _value;
@@ -105,8 +150,7 @@ List<double> calculateGridLines(List<LayoutUnit> _list, double space) {
 
 //Same use of the previous function, but in this case we provide a list of already calculated lines
 //and we access them to calculate the Dependent Units
-List<double> calculateGridLinesWithDependetUnit(
-    List<LayoutUnit> _list, double space, List<double> _listOfDoubles) {
+List<double> calculateGridLinesWithDependetUnit(List<LayoutUnit> _list, double space, List<double> _listOfDoubles) {
   //We create a list where we register our minMax final values
   List<double> _listOfMinMaxValues = List<double>.filled(_list.length, 0.0);
 
@@ -117,8 +161,7 @@ List<double> calculateGridLinesWithDependetUnit(
   int _sumOfFractions = getSumOfFractions(_list);
 
   //We calculate the free space by pre-calculating the pixels, % sizes AND also the dependent units
-  double _freeSpace =
-      getFreeSpaceWithDependentUnit(_list, space, _listOfDoubles);
+  double _freeSpace = getFreeSpaceWithDependentUnit(_list, space, _listOfDoubles);
 
   //To keep track of where we are inside our Stack (It's just an offset)
   double _currentPosition = 0.0;
@@ -134,20 +177,23 @@ List<double> calculateGridLinesWithDependetUnit(
       _layoutMinMax = _list[_i];
 
       if (_layoutMinMax.getMaxUnit() is LayoutPixel ||
-          _layoutMinMax.getMaxUnit() is LayoutPercentage) {
-        _maxValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
-        _minValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+          _layoutMinMax.getMaxUnit() is LayoutPercentage ||
+          _layoutMinMax.getMaxUnit() is LayoutDependent) {
+
+        _maxValue = getValueFromLayoutUnitWithDependentUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions, _listOfDoubles);
+        _minValue = getValueFromLayoutUnitWithDependentUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions, _listOfDoubles);
 
         if (_maxValue < _freeSpace) {
+
           _listOfMinMaxValues[_i] = _maxValue;
           _freeSpace -= _maxValue;
         } else {
           if (_freeSpace > _minValue) {
+
             _listOfMinMaxValues[_i] = _freeSpace;
             _freeSpace = 0;
           } else if (_freeSpace < _minValue) {
+
             _listOfMinMaxValues[_i] = _minValue;
             _freeSpace = 0;
           }
@@ -168,10 +214,8 @@ List<double> calculateGridLinesWithDependetUnit(
       _layoutMinMax = _list[_i];
 
       if (_layoutMinMax.getMaxUnit() is LayoutFraction) {
-        _maxValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
-        _minValue = getValueFromLayoutUnit(
-            _layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
+        _maxValue = getValueFromLayoutUnit(_layoutMinMax.getMaxUnit(), space, _freeSpace, _sumOfFractions);
+        _minValue = getValueFromLayoutUnit(_layoutMinMax.getMinUnit(), space, _freeSpace, _sumOfFractions);
 
         if (_minValue > _maxValue) {
           _layoutFraction = _layoutMinMax.getMaxUnit();
@@ -213,8 +257,7 @@ List<double> calculateGridLinesWithDependetUnit(
   return _finalList;
 }
 
-double getValueFromLayoutUnit(
-    LayoutUnit layoutUnit, double space, double freeSpace, int sumOfFractions) {
+double getValueFromLayoutUnit(LayoutUnit layoutUnit, double space, double freeSpace, int sumOfFractions) {
   double _value = 0.0;
 
   if (layoutUnit is LayoutPixel) {
@@ -223,6 +266,22 @@ double getValueFromLayoutUnit(
     _value = layoutUnit.getValue(space);
   } else if (layoutUnit is LayoutFraction) {
     _value = layoutUnit.getValue(sumOfFractions, freeSpace);
+  }
+
+  return _value;
+}
+
+double getValueFromLayoutUnitWithDependentUnit(LayoutUnit layoutUnit, double space, double freeSpace, int sumOfFractions, List<double> _listOfDoubles) {
+  double _value = 0.0;
+
+  if (layoutUnit is LayoutPixel) {
+    _value = layoutUnit.pixels;
+  } else if (layoutUnit is LayoutPercentage) {
+    _value = layoutUnit.getValue(space);
+  } else if (layoutUnit is LayoutFraction) {
+    _value = layoutUnit.getValue(sumOfFractions, freeSpace);
+  }else if (layoutUnit is LayoutDependent) {
+    _value = getDependentLineValue(layoutUnit, _listOfDoubles);
   }
 
   return _value;
@@ -241,8 +300,7 @@ double getFreeSpace(List<LayoutUnit> listToGetSpaceFrom, double space) {
   return _freeSpace;
 }
 
-double getFreeSpaceWithDependentUnit(List<LayoutUnit> listToGetSpaceFrom,
-    double space, List<double> _listOfDoubles) {
+double getFreeSpaceWithDependentUnit(List<LayoutUnit> listToGetSpaceFrom,double space, List<double> _listOfDoubles) {
   double _freeSpace = space;
 
   for (int _i = 0; _i < listToGetSpaceFrom.length; _i++) {
@@ -258,13 +316,12 @@ double getFreeSpaceWithDependentUnit(List<LayoutUnit> listToGetSpaceFrom,
   return _freeSpace;
 }
 
-double getDependentLineValue(
-    LayoutDependent _layoutDependent, List<double> _listOfDoubles) {
+double getDependentLineValue(LayoutDependent _layoutDependent, List<double> _listOfDoubles) {
   double _value = 0.0;
 
   _value =
-      _listOfDoubles[_layoutDependent.line] * _layoutDependent.multiplicator;
-
+      (_listOfDoubles[_layoutDependent.line] - _listOfDoubles[_layoutDependent.line - 1]) * _layoutDependent.multiplicator;
+  
   return _value;
 }
 

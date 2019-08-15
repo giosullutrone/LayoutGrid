@@ -1,7 +1,6 @@
 import '../layout_grid_couple.dart';
 
-List<LayoutGridCouple> getPositionedGridCoupleList(
-    List<List<String>> areas, List<LayoutGridCouple> couples) {
+List<LayoutGridCouple> getPositionedGridCoupleList(List<List<String>> areas, List<LayoutGridCouple> couples) {
   List<LayoutGridCouple> _couples = couples;
   String _name;
 
@@ -16,8 +15,7 @@ List<LayoutGridCouple> getPositionedGridCoupleList(
   return _couples;
 }
 
-LayoutGridCouple getPositionededGridCouple(
-    List<List<String>> areas, LayoutGridCouple couple) {
+LayoutGridCouple getPositionededGridCouple(List<List<String>> areas, LayoutGridCouple couple) {
   LayoutGridCouple _child = couple;
 
   for (int _i = 0; _i < areas.length; _i++) {

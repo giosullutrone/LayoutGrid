@@ -17,19 +17,17 @@ class InheritedSizeModel extends InheritedModel<String> {
   }
 
   @override
-  bool updateShouldNotifyDependent(
-      InheritedSizeModel old, Set<String> dependencies) {
-    return (_sizeMap.containsKey(dependencies)) &&
-        (_sizeMap[dependencies] != old._sizeMap[dependencies]);
+  bool updateShouldNotifyDependent(InheritedSizeModel old, Set<String> dependencies) {
+    return (_sizeMap.containsKey(dependencies)) && (_sizeMap[dependencies] != old._sizeMap[dependencies]);
   }
 
   static InheritedSizeModel of(BuildContext context, {String sizeKey}) {
-    return InheritedModel.inheritFrom<InheritedSizeModel>(context,
-        aspect: sizeKey);
+    return InheritedModel.inheritFrom<InheritedSizeModel>(context,aspect: sizeKey);
   }
 
   //Used to store or update the size inside the _sizeMap of the InheritedSizeModel
   void updateSize(String sizeKey, Size size) {
+    print("$sizeKey $size");
     _sizeMap[sizeKey] = size;
   }
 
