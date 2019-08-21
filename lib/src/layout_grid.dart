@@ -1,4 +1,6 @@
 import 'package:flutter_web/material.dart';
+import 'Util/layout_creation.dart';
+import 'Util/layout_grid_units.dart';
 
 import 'Util/area_creation.dart';
 import 'Util/custom_layout_grid_scroll_behavior.dart';
@@ -19,9 +21,9 @@ class LayoutGrid extends StatefulWidget {
     this.scrollController,
     this.layoutModel,
     Key key,
-  }) : super(key: key);
+  }): super(key: key);
 
-  final List<double> columns, rows;
+  final List<LayoutUnit> columns, rows;
 
   final List<LayoutGridCouple> couples;
 
@@ -60,88 +62,80 @@ class _LayoutGridState extends State<LayoutGrid> {
   @override
   Widget build(BuildContext context) {
 
-    updateGrid();
-
     return ScrollConfiguration(
 
       //We use ScrollConfiguration to remove the list glow that is used manly on mobile devices
       behavior: CustomLayoutGridScrollBehavior(),
 
-      child: ListView(
+      child: Container(
 
-        controller: widget.scrollController,
-        scrollDirection: widget.scrollDirection,
+        height: widget.height,
+        width: widget.width,
 
-        children: <Widget>[
-          Container(
+        child: ListView(
 
-            height: widget.height,
-            width: widget.width,
+          controller: widget.scrollController,
+          scrollDirection: widget.scrollDirection,
 
-            child: Stack(
-              fit: StackFit.expand,
-              children: List<Widget>.generate(_couples.length, (int index) {
+          children: <Widget>[
+            Container(
 
-                getWidgetParameters(index);
+              height: widget.height,
+              width: widget.width,
 
-                //If the user gave a key to the widget then we add or update the Size associated with that key,
-                //making it accessible from elsewhere just by calling the InheritedSizeModel
-                if (_couples[index].modelKey != null) {
-                  widget.layoutModel.updateSize(_couples[index].modelKey, Size(_width, _height));
-                  widget.layoutModel.updatePosition(_couples[index].modelKey,Offset(_left,_top));
+              child: Stack(
+                fit: StackFit.expand,
+                children: List<Widget>.generate(_couples.length, (int index) {
+
+                  getWidgetParameters(index);
+                  
+                  //If the user gave a key to the widget then we add or update the Size associated with that key,
+                  //making it accessible from elsewhere just by calling the InheritedSizeModel
+                  if (_couples[index].modelKey != null) {
+                    widget.layoutModel.updateModel(_couples[index].modelKey, Size(_width, _height), Offset(_left,_top));
+                  }
+
+                  //We pass top and left to the positioned widget inside of the LayoutGridChild
+                  //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
+                  //
+                  //We assign an UniqueKey so that flutter is forced to update the widget
+                  return LayoutGridChild(
+                    key: (_couples[index].key != null) ? _couples[index].key : UniqueKey(),
+                    top: _top,
+                    left: _left,
+                    height: _height,
+                    width: _width,
+                    widget: _couples[index].widget,
+                  );
                 }
-
-                //We pass top and left to the positioned widget inside of the LayoutGridChild
-                //And the height and width calculated via difference of cols(col1 and col0) and rows(row1 and row0) to the Container
-                //
-                //We assign an UniqueKey so that flutter is forced to update the widget
-                return LayoutGridChild(
-                  key: (_couples[index].key != null) ? _couples[index].key : UniqueKey(),
-                  top: _top,
-                  left: _left,
-                  height: _height,
-                  width: _width,
-                  widget: _couples[index].widget,
-                );
-              }
-            )),
-          ),
-        ]
+              )),
+            ),
+          ]
+        ),
       ),
     );
   }
 
-  void updateGrid() {
-
-    _col = widget.columns;
-    _rows = widget.rows;
-
-    if (_col[0] != 0.0) {
-      _col.insert(0, 0.0);
-    }
-    if (_rows[0] != 0.0) {
-      _rows.insert(0, 0.0);
-    }
-  }
-
   void getWidgetParameters(int index) {
 
-    if (_couples[index].position != null) {
+    List<double> lineList = createLayout(widget.columns, widget.rows, widget.width, widget.height);
+
+    _col = lineList.sublist(0,widget.columns.length);
+    _rows = lineList.sublist(widget.columns.length);
+
+    _col.forEach((a) => print(a));
+    _rows.forEach((a) => print(a));
+
+    if (_couples[index].shouldOverwrite) {
 
       _top = _couples[index].position.dy;
       _left = _couples[index].position.dx;
+      _height = _couples[index].size.height;
+      _width = _couples[index].size.width;
     }else {   
 
       _top = _rows[_couples[index].row0];
       _left = _col[_couples[index].col0];
-    }
-
-    if (_couples[index].size != null) {
-
-      _height = _couples[index].size.height;
-      _width = _couples[index].size.width;
-    }else {
-    
       _height = (_rows[_couples[index].row1] - _rows[_couples[index].row0] >= 0.0) ? _rows[_couples[index].row1] - _rows[_couples[index].row0] : 0.0;
       _width = (_col[_couples[index].col1] - _col[_couples[index].col0] >= 0.0) ? _col[_couples[index].col1] - _col[_couples[index].col0] : 0.0;
     }

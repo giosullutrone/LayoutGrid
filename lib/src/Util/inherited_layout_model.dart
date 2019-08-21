@@ -33,14 +33,16 @@ class InheritedLayoutModel extends InheritedModel<String> {
   }
 
   //Used to store or update the size inside the _sizeMap of the InheritedSizeModel
-  void updateSize(String modelKey, Size size) {
-    print("$modelKey $size");
-    _modelMap[modelKey].size = size;
-  }
+  void updateModel(String modelKey, Size size, Offset position) {
+    print("$modelKey $size $position");
 
-  void updatePosition(String modelKey, Offset position) {
-    print("$modelKey $position");
-    _modelMap[modelKey].position = position;
+    if (_modelMap.containsKey(modelKey)) {   
+
+    _modelMap[modelKey] = SizePositionCouple(size: size, position: position);
+    }else {
+      
+      _modelMap.putIfAbsent(modelKey, () => SizePositionCouple(size: size, position: position));
+    }
   }
 
   ///Used to get the width associated to the sizeKey provided
