@@ -1,23 +1,14 @@
 import 'package:flutter_web/widgets.dart';
 
-class LayoutUnit{
-
-  LayoutUnit({this.priority = 0, this.subPriority = 0});
-
-  int priority;
-  int subPriority;
-  int index = 0;
-  Axis axis;
-}
+import 'layout_grid_private_units.dart';
 
 class LayoutPixel extends LayoutUnit {
   LayoutPixel({
     this.pixels = 0.0,
-    int priority,
-    int subPriority,
+    int priority = 0,
   }) : assert(
     pixels != null,
-  ), super(priority: priority, subPriority: subPriority);
+  ), super(priority: priority);
 
   double pixels;
 
@@ -29,11 +20,10 @@ class LayoutPixel extends LayoutUnit {
 class LayoutPercentage extends LayoutUnit {
   LayoutPercentage({
     this.percentage = 0.0,
-    int priority,
-    int subPriority,
+    int priority = 0,
   }) : assert(
     percentage >= 0.0,
-  ), super(priority: priority, subPriority: subPriority);
+  ), super(priority: priority);
 
   double percentage;
 
@@ -45,12 +35,13 @@ class LayoutPercentage extends LayoutUnit {
 class LayoutFraction extends LayoutUnit {
   LayoutFraction({
     this.fraction = 0,
-    int priority,
-    int subPriority,
+    int priority = 0,
+    this.subPriority = 0,
   }) : assert(
     fraction != null,
-  ), super(priority: priority, subPriority: subPriority);
+  ), super(priority: priority);
 
+  int subPriority;
   int fraction;
 
   double getValue(int sumOfFractions, double freeSpace) {
@@ -62,33 +53,26 @@ class LayoutMinMax extends LayoutUnit {
   LayoutMinMax({
     this.minUnit,
     this.maxUnit,
-    int priority,
-    int subPriority,
+    this.unit,
+    int priority = 0,
+    this.subPriority = 0,
   }) : assert(
     !(minUnit is LayoutFraction && maxUnit is LayoutFraction),
-  ), super(priority: priority, subPriority: subPriority);
+  ), super(priority: priority);
 
-  LayoutUnit minUnit, maxUnit;
-
-  LayoutUnit getMinUnit() {
-    return minUnit;
-  }
-
-  LayoutUnit getMaxUnit() {
-    return maxUnit;
-  }
+  LayoutUnit unit,minUnit, maxUnit;
+  int subPriority;
 }
 
 class LayoutDependent extends LayoutUnit {
   LayoutDependent({
     this.line,
     this.multiplicator = 1.0,
-    int priority,
-    int subPriority,
+    int priority = 0,
   }) : assert(
     line != null,
     multiplicator != null,
-  ), super(priority: priority, subPriority: subPriority);
+  ), super(priority: priority);
 
   int line;
   double multiplicator;

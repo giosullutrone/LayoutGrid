@@ -1,5 +1,6 @@
 import 'package:flutter_web/material.dart';
 
+import 'layout_grid_private_units.dart';
 import 'layout_grid_units.dart';
 
 List<double> createLayout(List<LayoutUnit> cols, List<LayoutUnit> rows, double width, double height) {
@@ -67,8 +68,7 @@ double manageMinMaxAndFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int 
 
   if(joinedList[joinedListIndex] is LayoutMinMax) {
 
-    if ((joinedList[joinedListIndex] as LayoutMinMax).minUnit is LayoutFraction || 
-        (joinedList[joinedListIndex] as LayoutMinMax).maxUnit is LayoutFraction ) {
+    if ((joinedList[joinedListIndex] as LayoutMinMax).unit is LayoutFraction) {
 
       freeSpace = manageFractionsAndGetFreeSpace(joinedList, joinedListIndex, sizes, space, freeSpace);
 
@@ -88,6 +88,8 @@ double manageFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int joinedLis
   List<LayoutMinMax> _layoutMinMaxList = initLayoutMinMaxList(joinedList, joinedListIndex);
   int _sumOfFractions = getSumOfFractions(joinedList, joinedList[joinedListIndex].priority, joinedList[joinedListIndex].axis);
 
+  print("SOF: $_sumOfFractions");
+
   double _finalFreeSpace = freeSpace;
 
   _layoutMinMaxList.sort((b,a) => a.subPriority.compareTo(b.subPriority));
@@ -95,38 +97,26 @@ double manageFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int joinedLis
   for (int _i=0; _i < _layoutMinMaxList.length; _i++) {
     if (_layoutMinMaxList[_i] is LayoutMinMax) {
 
-      if(_layoutMinMaxList[_i].maxUnit is LayoutFraction) {        
+      if(_layoutMinMaxList[_i].unit is LayoutFraction) {
 
-        double maxValue = (_layoutMinMaxList[_i].maxUnit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
+        double value = (_layoutMinMaxList[_i].unit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
+
+        double maxValue = getDeterminedValue(_layoutMinMaxList[_i].maxUnit, space, sizes);
         double minValue = getDeterminedValue(_layoutMinMaxList[_i].minUnit, space, sizes);
-        print("min value: $minValue, max value: $maxValue");
 
-        if (maxValue < minValue) {
-          _sumOfFractions -= (_layoutMinMaxList[_i].maxUnit as LayoutFraction).fraction;
+        if (value > maxValue && maxValue != -1.0) {
+          _sumOfFractions -= (_layoutMinMaxList[_i].unit as LayoutFraction).fraction;
+          freeSpace -= maxValue;
+          _finalFreeSpace -= maxValue;
+
+          sizes[_layoutMinMaxList[_i].index] = maxValue;
+
+        }else if (value < minValue && minValue != -1.0) {
+          _sumOfFractions -= (_layoutMinMaxList[_i].unit as LayoutFraction).fraction;
           freeSpace -= minValue;
           _finalFreeSpace -= minValue;
 
-          print("free space: $freeSpace");
-
-          sizes[_layoutMinMaxList[_i].index] = minValue;
-        }
-      }else if (_layoutMinMaxList[_i] is LayoutMinMax) {
-
-        if(_layoutMinMaxList[_i].minUnit is LayoutFraction) {
-
-          double minValue = (_layoutMinMaxList[_i].minUnit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
-          double maxValue = getDeterminedValue(_layoutMinMaxList[_i].maxUnit, space, sizes);
-          print("min value: $minValue, max value: $maxValue");
-
-          if (maxValue < minValue) {
-            _sumOfFractions -= (_layoutMinMaxList[_i].minUnit as LayoutFraction).fraction;
-            freeSpace -= maxValue;
-            _finalFreeSpace -= maxValue;
-
-            print("free space: $freeSpace");
-
-            sizes[_layoutMinMaxList[_i].index] = maxValue;
-          }
+          sizes[_layoutMinMaxList[_i].index] = minValue;          
         }
       }
     }
@@ -138,28 +128,40 @@ double manageFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int joinedLis
 
       if (joinedList[_i] is LayoutMinMax) {
 
-        if((joinedList[_i] as LayoutMinMax).maxUnit is LayoutFraction) {
+        if((joinedList[_i] as LayoutMinMax).unit is LayoutFraction) {
 
-          double maxValue =  ((joinedList[_i] as LayoutMinMax).maxUnit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
+          double value =  ((joinedList[_i] as LayoutMinMax).unit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
 
-          _finalFreeSpace = 0.0;
-          sizes[joinedList[_i].index] = maxValue;
-
-        }else if((joinedList[_i] as LayoutMinMax).minUnit is LayoutFraction) {
-
-          double minValue = ((joinedList[_i] as LayoutMinMax).minUnit as LayoutFraction).getValue(_sumOfFractions, freeSpace);
-
-          _finalFreeSpace = 0.0;
-          sizes[joinedList[_i].index] = minValue;
-
+          _finalFreeSpace -= value;
+          sizes[joinedList[_i].index] = value;
         }
-
       }else if (joinedList[_i] is LayoutFraction) {
 
         double value = (joinedList[_i] as LayoutFraction).getValue(_sumOfFractions, freeSpace);
 
-        _finalFreeSpace = 0.0;
+        _finalFreeSpace -= value;
         sizes[joinedList[_i].index] = value;
+      }
+    }
+  }
+
+  print("final free space: $_finalFreeSpace");
+
+  if (_finalFreeSpace > 0.0) {
+    for (int _i=0; _i < _layoutMinMaxList.length; _i++) {
+      if (_layoutMinMaxList[_i] is LayoutMinMax) {
+
+        if(_layoutMinMaxList[_i].unit is LayoutFraction) {
+
+          double maxValue = getDeterminedValue(_layoutMinMaxList[_i].maxUnit, space, sizes);
+
+          if (maxValue == -1.0) {
+
+            sizes[_layoutMinMaxList[_i].index] += _finalFreeSpace;
+            freeSpace = 0.0;
+            _finalFreeSpace = 0.0;
+          }
+        }
       }
     }
   }
@@ -175,7 +177,7 @@ List<LayoutMinMax> initLayoutMinMaxList(List<LayoutUnit> joinedList, int joinedL
 
     if (joinedList[_i] is LayoutMinMax && joinedList[_i].priority == joinedList[joinedListIndex].priority) {
 
-      if((joinedList[_i] as LayoutMinMax).maxUnit is LayoutFraction || (joinedList[_i] as LayoutMinMax).minUnit is LayoutFraction) {
+      if((joinedList[_i] as LayoutMinMax).unit is LayoutFraction) {
         _layoutMinMaxList.add(joinedList[_i]);
       }
     }
@@ -188,15 +190,21 @@ double manageDeterminedMinMaxAndGetFreeSpace(List<LayoutUnit> joinedList, int jo
   
   double _finalFreeSpace = freeSpace;
 
+  double value = getDeterminedValue((joinedList[joinedListIndex] as LayoutMinMax).unit, space, sizes);
   double minValue = getDeterminedValue((joinedList[joinedListIndex] as LayoutMinMax).minUnit, space, sizes);
   double maxValue = getDeterminedValue((joinedList[joinedListIndex] as LayoutMinMax).maxUnit, space, sizes);
 
-  if (maxValue > minValue) {
+  if (value > maxValue && maxValue != -1.0) {
     sizes[joinedList[joinedListIndex].index] = maxValue;
     _finalFreeSpace -= maxValue;
-  }else {
+
+  }else if(value < minValue && minValue != -1.0){
     sizes[joinedList[joinedListIndex].index] = minValue;
     _finalFreeSpace -= minValue;
+
+  }else {
+    sizes[joinedList[joinedListIndex].index] = value;
+    _finalFreeSpace -= value;
   }
 
   return _finalFreeSpace;
@@ -226,6 +234,8 @@ double getDeterminedValue(LayoutUnit unit, double space, List<double> sizes) {
   }else if (unit is LayoutDependent) {
     _value = unit.getValue(sizes);
 
+  }else if (unit == null) {
+    _value = -1.0;
   }
 
   return _value;
@@ -243,11 +253,8 @@ int getSumOfFractions(List<LayoutUnit> list, int priority, Axis axis) {
 
       }else if (list[_i] is LayoutMinMax) {
 
-        if ((list[_i] as LayoutMinMax).maxUnit is LayoutFraction) {
-          _sumOfFractions += ((list[_i] as LayoutMinMax).maxUnit as LayoutFraction).fraction;
-
-        }else if ((list[_i] as LayoutMinMax).minUnit is LayoutFraction) {
-          _sumOfFractions += ((list[_i] as LayoutMinMax).minUnit as LayoutFraction).fraction;
+        if ((list[_i] as LayoutMinMax).unit is LayoutFraction) {
+          _sumOfFractions += ((list[_i] as LayoutMinMax).unit as LayoutFraction).fraction;
         }
       }
     }
