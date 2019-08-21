@@ -148,8 +148,10 @@ double manageFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int joinedLis
   print("final free space: $_finalFreeSpace");
 
   if (_finalFreeSpace > 0.0) {
+
     for (int _i=0; _i < _layoutMinMaxList.length; _i++) {
-      if (_layoutMinMaxList[_i] is LayoutMinMax) {
+      
+      if (_layoutMinMaxList[_i] is LayoutMinMax && _finalFreeSpace > 0.0) {
 
         if(_layoutMinMaxList[_i].unit is LayoutFraction) {
 
@@ -160,6 +162,13 @@ double manageFractionsAndGetFreeSpace(List<LayoutUnit> joinedList, int joinedLis
             sizes[_layoutMinMaxList[_i].index] += _finalFreeSpace;
             freeSpace = 0.0;
             _finalFreeSpace = 0.0;
+          }else if (maxValue > sizes[_layoutMinMaxList[_i].index]){
+
+            double value = maxValue - _finalFreeSpace;
+
+            sizes[_layoutMinMaxList[_i].index] += value;
+            freeSpace -= value;
+            _finalFreeSpace -= value;
           }
         }
       }
