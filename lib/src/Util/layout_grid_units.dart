@@ -1,5 +1,3 @@
-import 'package:flutter_web/widgets.dart';
-
 import 'layout_grid_private_units.dart';
 
 class LayoutPixel extends LayoutUnit {
@@ -36,12 +34,10 @@ class LayoutFraction extends LayoutUnit {
   LayoutFraction({
     this.fraction = 0,
     int priority = 0,
-    this.subPriority = 0,
   }) : assert(
     fraction != null,
   ), super(priority: priority);
 
-  int subPriority;
   int fraction;
 
   double getValue(int sumOfFractions, double freeSpace) {
