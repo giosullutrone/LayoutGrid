@@ -81,11 +81,11 @@ class _LayoutGridState extends State<LayoutGrid> {
               height: (widget.height != null) ? widget.height : widget._calculatedLayout.last,
               width: (widget.width != null) ? widget.width : widget._calculatedLayout[widget.columns.length - 1],
 
-              child: (_couples.isNotEmpty) ? Stack(
+              child: Stack(
                 fit: StackFit.expand,
                 children: List<Widget>.generate(_couples.length, (int index) {
                   
-                  setParameters(Layout.getWidgetParameters(index, _couples, _cols, _rows));
+                  setParameters(Layout.getWidgetParameters(index, _couples, _cols, _rows), _couples, index);
                   
                   if (_couples[index].modelKey != null) {
                     widget.layoutModel.updateModel(_couples[index].modelKey, Size(_width, _height), Offset(_left,_top));
@@ -98,20 +98,33 @@ class _LayoutGridState extends State<LayoutGrid> {
                     height: _height,
                     width: _width,
                     widget: _couples[index].widget,
+                    alignment: _couples[index].alignment,
                   );
-                }
-              )) : Container(),
-            ),
+                })
+              )
+            )
           ]
         ),
       ),
     );
   }
 
-  void setParameters(Map<String, double> map) {
-    _top = map["top"];
-    _left = map["left"];
-    _height = map["height"];
-    _width = map["width"];
+  void setParameters(Map<String, double> map, List<LayoutGridCouple> list, int index) {
+
+    if (list[index].position != null) {
+      _top = list[index].position.dy + list[index].offset.dy;
+      _left = list[index].position.dx + list[index].offset.dx;
+    }else {
+      _top = map["top"] + list[index].offset.dy;
+      _left = map["left"] + list[index].offset.dx;
+    }
+
+    if (list[index].size != null) {
+      _height = list[index].size.height;
+      _width = list[index].size.width;
+    }else {
+      _height = map["height"];
+      _width = map["width"];
+    }
   }
 }

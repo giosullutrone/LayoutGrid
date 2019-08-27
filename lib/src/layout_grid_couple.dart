@@ -14,9 +14,11 @@ class LayoutGridCouple {
       this.col1 = -1,
       this.row0 = -1,
       this.row1 = -1,
+      this.offset = const Offset(0.0, 0.0),
       this.size,
       this.position,
       this.key,
+      this.alignment = const Alignment(-1.0, -1.0),
       this.modelKey});
 
   ///[widget] to link the area with
@@ -28,6 +30,9 @@ class LayoutGridCouple {
   ///Name of the area to link the widget with
   final String name;
 
+  ///Optional offset from top-left point of the area
+  final Offset offset;
+
   ///Optional size overwrite
   final Size size;
 
@@ -36,6 +41,9 @@ class LayoutGridCouple {
 
   ///Key to assign to the widget
   final Key key;
+
+  ///Widget alignment 
+  final Alignment alignment;
 
   ///Specify a String to save the dimensions of the linked [widget] inside the [InheritedSizeModel]
   final String modelKey;

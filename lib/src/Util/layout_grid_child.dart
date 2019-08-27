@@ -3,6 +3,7 @@ import 'package:flutter_web/material.dart';
 class LayoutGridChild extends StatelessWidget {
   final double top, left, height, width;
   final Widget widget;
+  final Alignment alignment;
 
   const LayoutGridChild({
     @required Key key,
@@ -11,6 +12,7 @@ class LayoutGridChild extends StatelessWidget {
     @required this.height,
     @required this.width,
     @required this.widget,
+    this.alignment,
   }) : super(key: key);
 
   @override
@@ -23,7 +25,7 @@ class LayoutGridChild extends StatelessWidget {
         height: height,
         width: width,
 
-        child: widget,
+        child: Align(child: widget, alignment: alignment,),
       ),
     );
   }
