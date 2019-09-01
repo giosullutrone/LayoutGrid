@@ -2,7 +2,6 @@ import 'package:flutter_web/material.dart';
 import 'Util/layout_creation.dart';
 import 'Util/layout_grid_private_units.dart';
 
-import 'Util/custom_layout_grid_scroll_behavior.dart';
 import 'Util/inherited_layout_model.dart';
 import 'Util/layout_grid_child.dart';
 import 'layout_grid_couple.dart';
@@ -16,8 +15,6 @@ class LayoutGrid extends StatefulWidget {
     this.areas,
     this.width,
     this.height,
-    this.scrollDirection = Axis.vertical,
-    this.scrollController,
     this.layoutModel,
     Key key,
   }): super(key: key);
@@ -29,9 +26,6 @@ class LayoutGrid extends StatefulWidget {
   final List<List<String>> areas;
 
   final double width, height;
-
-  final Axis scrollDirection;
-  final ScrollController scrollController;
 
   final InheritedLayoutModel layoutModel;
 
@@ -64,48 +58,32 @@ class _LayoutGridState extends State<LayoutGrid> {
     _cols = widget._calculatedLayout.sublist(0,widget.columns.length);
     _rows = widget._calculatedLayout.sublist(widget.columns.length);
 
-    return ScrollConfiguration(
+    return Container(
 
-      behavior: CustomLayoutGridScrollBehavior(),
+      height: (widget.height != null) ? widget.height : widget._calculatedLayout.last,
+      width: (widget.width != null) ? widget.width : widget._calculatedLayout[widget.columns.length - 1],
 
-      child: Container(
+      child: Stack(
+        fit: StackFit.expand,
+        children: List<Widget>.generate(_couples.length, (int index) {
+          
+          setParameters(Layout.getWidgetParameters(index, _couples, _cols, _rows), _couples, index);
+          
+          if (_couples[index].modelKey != null) {
+            widget.layoutModel.updateModel(_couples[index].modelKey, Size(_width, _height), Offset(_left,_top));
+          }
 
-        child: ListView(
-
-          controller: widget.scrollController,
-          scrollDirection: widget.scrollDirection,
-
-          children: <Widget>[
-            Container(
-
-              height: (widget.height != null) ? widget.height : widget._calculatedLayout.last,
-              width: (widget.width != null) ? widget.width : widget._calculatedLayout[widget.columns.length - 1],
-
-              child: Stack(
-                fit: StackFit.expand,
-                children: List<Widget>.generate(_couples.length, (int index) {
-                  
-                  setParameters(Layout.getWidgetParameters(index, _couples, _cols, _rows), _couples, index);
-                  
-                  if (_couples[index].modelKey != null) {
-                    widget.layoutModel.updateModel(_couples[index].modelKey, Size(_width, _height), Offset(_left,_top));
-                  }
-
-                  return LayoutGridChild(
-                    key: (_couples[index].key != null) ? _couples[index].key : UniqueKey(),
-                    top: _top,
-                    left: _left,
-                    height: _height,
-                    width: _width,
-                    widget: _couples[index].widget,
-                    alignment: _couples[index].alignment,
-                  );
-                })
-              )
-            )
-          ]
-        ),
-      ),
+          return LayoutGridChild(
+            key: (_couples[index].key != null) ? _couples[index].key : UniqueKey(),
+            top: _top,
+            left: _left,
+            height: _height,
+            width: _width,
+            widget: _couples[index].widget,
+            alignment: _couples[index].alignment,
+          );
+        })
+      )
     );
   }
 
