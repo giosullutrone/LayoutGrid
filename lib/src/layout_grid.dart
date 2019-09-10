@@ -13,8 +13,10 @@ class LayoutGrid extends StatefulWidget {
     @required this.rows,
     @required this.couples,
     this.areas,
-    this.width,
-    this.height,
+    this.referenceWidth,
+    this.referenceHeight,
+    this.maxWidth,
+    this.maxHeight,
     this.layoutModel,
     Key key,
   }): super(key: key);
@@ -25,7 +27,9 @@ class LayoutGrid extends StatefulWidget {
 
   final List<List<String>> areas;
 
-  final double width, height;
+  final double maxWidth, maxHeight;
+
+  double referenceWidth, referenceHeight;
 
   final InheritedLayoutModel layoutModel;
 
@@ -53,15 +57,24 @@ class _LayoutGridState extends State<LayoutGrid> {
   @override
   Widget build(BuildContext context) {
 
-    widget._calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (widget.width != null) ? widget.width : 0.0, (widget.height != null) ? widget.height : 0.0);
+    if(widget.maxWidth != null) {
+      widget.referenceWidth = widget.maxWidth;
+    }
+
+    if (widget.maxHeight != null) {
+      widget.referenceHeight = widget.maxHeight;
+    }
+
+    widget._calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (widget.referenceWidth != null) ? widget.referenceWidth : 0.0, 
+                                                                                (widget.referenceHeight != null) ? widget.referenceHeight : 0.0);
 
     _cols = widget._calculatedLayout.sublist(0,widget.columns.length);
     _rows = widget._calculatedLayout.sublist(widget.columns.length);
 
     return Container(
 
-      height: (widget.height != null) ? widget.height : widget._calculatedLayout.last,
-      width: (widget.width != null) ? widget.width : widget._calculatedLayout[widget.columns.length - 1],
+      height: (widget.maxHeight != null) ? widget.maxHeight : widget._calculatedLayout.last,
+      width: (widget.maxWidth != null) ? widget.maxWidth : widget._calculatedLayout[widget.columns.length - 1],
 
       child: Stack(
         fit: StackFit.expand,
