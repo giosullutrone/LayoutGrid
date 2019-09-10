@@ -1,3 +1,5 @@
+import 'package:flutter_web/material.dart';
+
 import 'layout_grid_private_units.dart';
 
 class LayoutPixel extends LayoutUnit {
@@ -62,18 +64,19 @@ class LayoutMinMax extends LayoutUnit {
 
 class LayoutDependent extends LayoutUnit {
   LayoutDependent({
-    this.line,
-    this.multiplicator = 1.0,
+    @required this.line,
+    this.lineAxis = Axis.vertical,
+    @required this.function,
     int priority = 0,
   }) : assert(
     line != null,
-    multiplicator != null,
   ), super(priority: priority);
 
   int line;
-  double multiplicator;
+  double Function(double) function;
+  Axis lineAxis;
 
   double getValue(List<double> list) {
-    return list[line] * multiplicator;
+    return function(list[line]);
   }
 }

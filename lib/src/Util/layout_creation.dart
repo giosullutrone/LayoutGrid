@@ -6,13 +6,16 @@ import 'layout_grid_units.dart';
 
 class Layout {
 
+  static List<double> _widthSizes;
+  static List<double> _heightSizes;
+
   static List<double> createLayout(List<LayoutUnit> cols, List<LayoutUnit> rows, double width, double height) {
 
     double _freeWidth = width;
     double _freeHeight = height;
 
-    List<double> _widthSizes = _initSizesListWithDefaultValue(cols.length + rows.length);
-    List<double> _heightSizes = _initSizesListWithDefaultValue(rows.length + rows.length);
+    _widthSizes = _initSizesListWithDefaultValue(cols.length + rows.length);
+    _heightSizes = _initSizesListWithDefaultValue(cols.length + rows.length);
 
     _setIndexAndAxis(cols, Axis.vertical);
     _setIndexAndAxis(rows, Axis.horizontal);
@@ -261,7 +264,11 @@ class Layout {
       _value = unit.getValue(space);
 
     }else if (unit is LayoutDependent) {
-      _value = unit.getValue(sizes);
+      if (unit.lineAxis == Axis.vertical) {      
+        _value = unit.getValue(_widthSizes);
+      }else {
+        _value = unit.getValue(_heightSizes);
+      }
 
     }else if (unit == null) {
       _value = -1.0;
