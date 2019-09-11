@@ -1,4 +1,4 @@
-import 'package:flutter_web/material.dart';
+import 'package:flutter/material.dart';
 
 class SizePositionCouple {
   SizePositionCouple({this.size = const Size(0.0, 0.0),this.position = const Offset(0.0, 0.0)});

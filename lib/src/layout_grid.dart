@@ -1,4 +1,4 @@
-import 'package:flutter_web/material.dart';
+import 'package:flutter/material.dart';
 import 'Util/layout_creation.dart';
 import 'Util/layout_grid_private_units.dart';
 
@@ -29,7 +29,7 @@ class LayoutGrid extends StatefulWidget {
 
   final double maxWidth, maxHeight;
 
-  double referenceWidth, referenceHeight;
+  final double referenceWidth, referenceHeight;
 
   final InheritedLayoutModel layoutModel;
 
@@ -46,9 +46,14 @@ class _LayoutGridState extends State<LayoutGrid> {
   List<double> _cols, _rows;
   double _top, _left, _width, _height;
 
+  double referenceWidth, referenceHeight;
+
   @override
   void initState() {
     super.initState();
+
+    referenceWidth = widget.referenceWidth;
+    referenceHeight = widget.referenceHeight;
 
     if (widget._calculatedCouples == null) widget._calculatedCouples = LayoutGridCouple.getPositionedGridCoupleList(widget.areas, widget.couples);
     _couples = widget._calculatedCouples;
@@ -58,15 +63,15 @@ class _LayoutGridState extends State<LayoutGrid> {
   Widget build(BuildContext context) {
 
     if(widget.maxWidth != null) {
-      widget.referenceWidth = widget.maxWidth;
+      referenceWidth = widget.maxWidth;
     }
 
     if (widget.maxHeight != null) {
-      widget.referenceHeight = widget.maxHeight;
+      referenceHeight = widget.maxHeight;
     }
 
-    widget._calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (widget.referenceWidth != null) ? widget.referenceWidth : 0.0, 
-                                                                                (widget.referenceHeight != null) ? widget.referenceHeight : 0.0);
+    widget._calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (referenceWidth != null) ? referenceWidth : 0.0, 
+                                                                                (referenceHeight != null) ? referenceHeight : 0.0);
 
     _cols = widget._calculatedLayout.sublist(0,widget.columns.length);
     _rows = widget._calculatedLayout.sublist(widget.columns.length);
