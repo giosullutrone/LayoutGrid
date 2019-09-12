@@ -33,20 +33,18 @@ class LayoutGrid extends StatefulWidget {
 
   final InheritedLayoutModel layoutModel;
 
-  List<LayoutGridCouple> _calculatedCouples;
-
-  List<double> _calculatedLayout;
-
   _LayoutGridState createState() => _LayoutGridState();
 }
 
 class _LayoutGridState extends State<LayoutGrid> {
 
   List<LayoutGridCouple> _couples;
+  List<double> _calculatedLayout;
   List<double> _cols, _rows;
   double _top, _left, _width, _height;
 
   double referenceWidth, referenceHeight;
+
 
   @override
   void initState() {
@@ -55,8 +53,7 @@ class _LayoutGridState extends State<LayoutGrid> {
     referenceWidth = widget.referenceWidth;
     referenceHeight = widget.referenceHeight;
 
-    if (widget._calculatedCouples == null) widget._calculatedCouples = LayoutGridCouple.getPositionedGridCoupleList(widget.areas, widget.couples);
-    _couples = widget._calculatedCouples;
+    _couples = LayoutGridCouple.getPositionedGridCoupleList(widget.areas, widget.couples);
   }
 
   @override
@@ -70,16 +67,16 @@ class _LayoutGridState extends State<LayoutGrid> {
       referenceHeight = widget.maxHeight;
     }
 
-    widget._calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (referenceWidth != null) ? referenceWidth : 0.0, 
+    _calculatedLayout = Layout.createLayout(widget.columns, widget.rows, (referenceWidth != null) ? referenceWidth : 0.0, 
                                                                                 (referenceHeight != null) ? referenceHeight : 0.0);
 
-    _cols = widget._calculatedLayout.sublist(0,widget.columns.length);
-    _rows = widget._calculatedLayout.sublist(widget.columns.length);
+    _cols = _calculatedLayout.sublist(0,widget.columns.length);
+    _rows = _calculatedLayout.sublist(widget.columns.length);
 
     return Container(
 
-      height: (widget.maxHeight != null) ? widget.maxHeight : widget._calculatedLayout.last,
-      width: (widget.maxWidth != null) ? widget.maxWidth : widget._calculatedLayout[widget.columns.length - 1],
+      height: (widget.maxHeight != null) ? widget.maxHeight : _calculatedLayout.last,
+      width: (widget.maxWidth != null) ? widget.maxWidth : _calculatedLayout[widget.columns.length - 1],
 
       child: Stack(
         fit: StackFit.expand,
