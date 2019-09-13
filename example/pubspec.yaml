@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  layout_grid: ^1.0.0-dev.2
+  layout_grid:
+    path: ../
 
 dev_dependencies:
   flutter_test:

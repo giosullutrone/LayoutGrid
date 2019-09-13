@@ -1,6 +1,6 @@
 name: layout_grid
-description: A CSS-Grid like package for Flutter_web.
-version: 1.0.0-dev.2
+description: A CSS-Grid like package for Flutter made completely of flutter's widgets.
+version: 1.0.0
 author: Giovanni Sullutrone <giovisull@gmail.com>
 homepage: https://github.com/SirCleric/LayoutGrid
 

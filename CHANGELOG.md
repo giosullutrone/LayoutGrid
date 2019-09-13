@@ -1,3 +1,11 @@
+## [1.0.0] - sep 12.
+
+* Fixed example.
+
+## [1.0.0-dev.3] - sep 12.
+
+* Added first simple example.
+
 ## [1.0.0-dev.2] - sep 11.
 
 * Changed the minimum sdk version.
